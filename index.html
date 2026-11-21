@@ -248,12 +248,13 @@ footer b{color:var(--tx)}
   <b>バーの長さ：</b>各まとまり（セクション）内の最大値で正規化＝<b>同じまとまり内での順位</b>を示します（見出し右の「最大 ±X%」が基準）。セクションをまたいだ強弱は<b>色</b>で判断してください。<br>
   <b>色：</b>±100%を上限とし、小さい変化も見分けられるよう平方根補正した絶対スケール。<b>±100%を超える値は上限と同じ色</b>になり、行に「上限」と表示します。0%は無色（グレー）。<br>
   <b>注意：</b>米国市場の取引時間中は暫定値（現在値）になります。先物型コモディティETF（UNG・DBE・DBB・DBA・DBC）は限月ロールの影響で現物価格と乖離しうる。「中東」は実質イスラエル中心（EIS）。未到来の月は選べません。
+  <div id="srcnote" style="font-size:10px;line-height:1.6;opacity:.7;margin-top:8px">データ出典： 財務省（mof.go.jp）／米国財務省（home.treasury.gov）／ECB（data.ecb.europa.eu）／Deutsche Bundesbank（bundesbank.de）／World Bank Open Data（CC BY 4.0）ほか。月次化・実質金利（名目−CPI）等の加工は本サイトによる。株価・FX・暗号は Yahoo Finance／東方財富の公開APIを訪問者のブラウザから直接取得（非公式・各社の利用規約をご確認ください）。本ページは市場データの表示であり投資助言ではありません。投資判断はご自身の責任で。</div>
   <div class="bldline">build <span id="bld"></span></div>
 </footer>
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-12-1049";
+const BUILD="v2026-11-14-1238";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -307,8 +308,38 @@ const RATEDEFS={
  "JP2Y":"日本2年国債利回り。","JP10Y":"日本10年国債利回り。",
  "GB2Y":"英国2年国債（ギルト）利回り。","GB10Y":"英国10年国債（ギルト）利回り。",
  "IN10Y":"インド10年国債利回り。","BR10Y":"ブラジル10年国債利回り。",
- "KR2Y":"韓国2年国債（국고채）利回り。","KR10Y":"韓国10年国債（국고채）利回り。"
+  "KR2Y":"韓国2年国債（국고채）利回り。","KR10Y":"韓国10年国債（국고채）利回り。"
 };
+/* v1700: 正式出典（PDL1.0・ESCB再利用ポリシーの帰属表示要件を満たす） */
+const SRCDEF={
+ "財務省":{name:"財務省「国債金利情報」",url:"www.mof.go.jp/jgbs/reference/interest_rate/",lic:"公共データ利用規約（PDL 1.0）"},
+ "米財務省":{name:"米国財務省 Daily Treasury Par Yield Curve Rates",url:"home.treasury.gov",lic:"米国政府公表データ"},
+ "Bundesbank":{name:"Deutsche Bundesbank BBSIS",url:"www.bundesbank.de/en/statistics",lic:"ESCB統計再利用ポリシー"},
+ "ECB":{name:"欧州中央銀行 ユーロ圏イールドカーブ",url:"data.ecb.europa.eu",lic:"ESCB統計再利用ポリシー"},
+ "DBnomics":{name:"DB.nomics（ECB系列ミラー）",url:"api.db.nomics.world",lic:"ESCB統計再利用ポリシー"},
+ "Eurostat":{name:"Eurostat",url:"ec.europa.eu/eurostat",lic:"CC BY 4.0原則（系列により商用制限あり）"},
+ "WorldBank":{name:"World Bank Open Data（消費者物価上昇率）",url:"data.worldbank.org",lic:"CC BY 4.0"},
+ "東方財富":{name:"東方財富（公開API経由・非公式）",url:"www.eastmoney.com"},
+ "東財API":{name:"東方財富（公開API経由・非公式）",url:"www.eastmoney.com"},
+ "Yahoo":{name:"Yahoo Finance（公開API経由・非公式）",url:"finance.yahoo.com"},
+ "CBOE":{name:"Cboe Global Markets（公開データ）",url:"www.cboe.com"}
+};
+/* 金利ティッカー→主取得源（到着順に依存しない静的な帰属表示用） */
+const SRCTK={"US2Y":"米財務省","US10Y":"米財務省","JP2Y":"財務省","JP10Y":"財務省","DE2Y":"Bundesbank","DE10Y":"Bundesbank",
+ "EU2Y":"ECB","EU10Y":"ECB","CN2Y":"東方財富","CN10Y":"東方財富","GB2Y":"東方財富","GB10Y":"東方財富",
+ "IN2Y":"東方財富","IN10Y":"東方財富","KR2Y":"東方財富","KR10Y":"東方財富","BR10Y":"東方財富"};
+function srcTitle(tk){ try{ const s=SRCDEF[SRCTK[tk]||RSRC[tk]]; return s? s.name+"（"+(s.lic||"非公式公開API・各社の利用規約をご確認ください")+"）" : (RSRC[tk]||"-"); }catch(e){ return (typeof RSRC!=="undefined"&&RSRC[tk])||"-"; } }
+function srcNote(tk){
+  try{
+    if(REALKEYS.indexOf(tk)>=0){
+      const nom=SRCDEF[SRCTK[REALMAP[tk][0]]]||SRCDEF[REALMAP[tk][0]];
+      return " 出典："+(nom? nom.name+"（"+nom.url+"）および":"")+"World Bank Open Data（data.worldbank.org／CC BY 4.0）に基づく「実質＝名目−CPI」の計算値（本サイトによる加工）。";
+    }
+    const d=SRCDEF[SRCTK[tk]];
+    if(d) return " 出典："+d.name+"（"+d.url+"）"+(d.lic?"※"+d.lic:"")+"。月次化は本サイトによる加工。";
+  }catch(e){}
+  return "";
+}
 const NOW=new Date(), YR=NOW.getFullYear(), MO=NOW.getMonth()+1;
 function pad2(n){ return String(n).padStart(2,"0"); }
 const PERIODS=[{id:"ytd",label:"年初来",partial:false}].concat((function(){
@@ -916,7 +947,7 @@ function rowHtml(it,V,mx,hasData){
   /* 項目名が既に「米国2年」のように年限を含む場合は「2年国債」を重ねない（米国2年2年国債になる） */
   const dupT=/国債/.test(n)||/(2年|10年)$/.test(String(n).trim());
   const rt=(it[3]==="rt"&&cd&&typeof cd.last==="number")
-    ? "<i class=\"rt\" title=\"直近の"+tn+"国債利回り（出所："+(RSRC[tk]||"-")+"）\">"+(dupT?"":"<u>"+tn+"国債</u>")+"<b class=\"src\">"+(SRCABBR[RSRC[tk]]||"?")+"</b></i>":"";
+    ? "<i class=\"rt\" title=\"直近の"+tn+"国債利回り（出所："+srcTitle(tk)+"）\">"+(dupT?"":"<u>"+tn+"国債</u>")+"<b class=\"src\">"+(SRCABBR[RSRC[tk]]||"?")+"</b></i>":"";
   void SRCABBR;
   const nm="<div class=\"nm\"><span class=\"nmx\">"+esc(n)+tkSuf(n,tk,ixn)+"</span>"+dv+rt+d1Badge(tk)+"</div>";
   if(v===undefined){
@@ -2853,7 +2884,7 @@ document.getElementById("defs").innerHTML=SECTIONS.map(function(s){
    + s.items.map(function(it){
        if(isSub(it)) return "<dt class=\"subd\">"+esc(it[0])+"</dt>";
        return "<dt>"+esc(it[0])+"（"+esc(it[1])+"）"+(it[3]==="dv"?" 配":"")+"</dt><dd>"
-         +(NAMES[it[1]]? "<em>"+esc(NAMES[it[1]])+"</em><br>":"")+esc(DEFS[it[1]]||RATEDEFS[it[1]]||"（説明未登録）")+"</dd>";
+         +(NAMES[it[1]]? "<em>"+esc(NAMES[it[1]])+"</em><br>":"")+esc(DEFS[it[1]]||RATEDEFS[it[1]]||"（説明未登録）")+srcNote(it[1])+"</dd>";   /* v1700: 正式出典を定義欄に付記 */
      }).join("")+"</dl></details>";
 }).join("");
 /* ===== 月次推移グラフ（行をタップ／クリック） =====

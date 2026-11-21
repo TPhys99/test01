@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-22-0007";
+const BUILD="v2026-11-22-0022";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3740,17 +3740,18 @@ try{
 /* ===== v1730: 市場センチメント（独立タブ・実数値トレンド表示） ===== */
 (function(){
 var st=document.createElement("style");
-st.textContent="#sentview{position:fixed;inset:0;z-index:99;background:#0b0e12;color:#e9eef5;overflow:auto;padding:8px 10px 24px;display:none}#sentview h2{font-size:15px;margin:0 0 2px}#sentview .sub{font-size:10px;color:#9aa4b2;margin:0 0 6px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:6px 9px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:12px;color:#e9eef5}#sentview .lv{font-size:17px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:11px;padding:10px 0}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:8px}#sentview svg{width:100%;height:auto;max-height:24vh;display:block}";
+st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}";
 document.head.appendChild(st);
-/* v2026-11-22-0007: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-22-0022: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
-var SENTD={};
+(function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
+var SENTD={daily:{}};
 function esc0(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function fmtV(n){ return (typeof n==="number"&&isFinite(n))? (Math.abs(n)>=100? n.toFixed(1):n.toFixed(2)) : "-"; }
 function ptsFromMap(m){ try{ return Object.keys(m||{}).sort().map(function(k){ return [k,m[k]]; }).filter(function(p){ return typeof p[1]==="number"; }); }catch(e){ return []; } }
 function svgTrend(pts,col){
   if(!pts||pts.length<2) return "<div class=\"wait\">データなし</div>";
-  var W=560,H=150,P=30,i,p;
+  var W=860,H=340,P=52,i,p;
   var ys=pts.map(function(q){ return q[1]; });
   var mn=Math.min.apply(null,ys),mx=Math.max.apply(null,ys);
   if(mn===mx){ mn-=1; mx+=1; }
@@ -3804,6 +3805,19 @@ async function loadBBAR(){
   }
   var u=await mo("UPRO"),s=await mo("SPXS");
   var pts=Object.keys(u).filter(function(k){ return s[k]&&s[k]>0; }).sort().map(function(k){ return [k,+(u[k]/s[k]).toFixed(2)]; });
+  if(pts.length<2){   /* フォールバック: Yahoo 日次2年から週次比 */
+    async function da(tk){
+      var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=2y&interval=1d",9000);
+      if(!t) return [];
+      try{ var j=JSON.parse(t), r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, o=[];
+        for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var d=new Date(ts[i]*1000); o.push([d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()),q[i]]); } }
+        return o; }catch(e){ return []; }
+    }
+    var du=await da("UPRO"), ds=await da("SPXS"), m={};
+    ds.forEach(function(p){ m[p[0]]=p[1]; });
+    pts=du.filter(function(p){ return m[p[0]]>0; }).map(function(p){ return [p[0],+(p[1]/m[p[0]]).toFixed(2)]; })
+          .filter(function(p,i,arr){ return i%5===0||i===arr.length-1; });   /* 週次間引き */
+  }
   SENTD.bbar=pts.length?{pts:pts,last:pts[pts.length-1][1],asof:pts[pts.length-1][0]}:{err:1};
 }
 var LOADED=false;
@@ -3812,36 +3826,139 @@ function sentEnsure(){
   loadCNN().then(sentRender).catch(sentRender);
   loadAAII().then(sentRender).catch(sentRender);
   loadBBAR().then(sentRender).catch(sentRender);
+  loadDaily().then(sentRender).catch(sentRender);
 }
+/* ---- v2026-11-22-0022: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+async function loadDaily(){
+  var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
+  function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
+  try{ var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",9000);
+    if(t){ var j=JSON.parse(t), r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, pts=[];
+      for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var dd=new Date(ts[i]*1000); pts.push([dd.getFullYear()+"-"+pad2(dd.getMonth()+1)+"-"+pad2(dd.getDate()),+q[i]]); } }
+      if(pts.length>1){ mk("VIX").pts=pts; } else mk("VIX").err=1; } else mk("VIX").err=1;
+  }catch(e){ mk("VIX").err=1; }
+  try{
+    async function trCSV(y){
+      var t=await sentFetch("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/"+y+"/all?type=daily_treasury_yield_curve&field_tdr_date_value="+y+"&_format=csv",10000);
+      if(!t) return [];
+      var ln=t.split(/\r?\n/), hd=ln[0].split(","), ci=-1;
+      for(var h=0;h<hd.length;h++){ if(hd[h].trim()==="10 Yr"){ ci=h; break; } }
+      if(ci<0) return [];
+      var out=[];
+      for(var i=1;i<ln.length;i++){ var c=ln[i].split(",");
+        if(c.length>ci&&c[0]&&c[ci]){ var dm=c[0].split("/");
+          if(dm.length===3){ var v=parseFloat(c[ci]); if(isFinite(v)) out.push([dm[2]+"-"+pad2(+dm[0])+"-"+pad2(+dm[1]),v]); } } }
+      return out;
+    }
+    var a=await trCSV(CY), b=await trCSV(CY-1);
+    var pts=a.concat(b).sort(function(x,y){ return x[0]<y[0]?-1:1; });
+    if(pts.length>1){ mk("US10Y").pts=pts; } else mk("US10Y").err=1;
+  }catch(e){ mk("US10Y").err=1; }
+  try{ var ks=Object.keys(PCCD).sort().map(function(k){ return [k,PCCD[k]]; }).filter(function(p){ return typeof p[1]==="number"&&isFinite(p[1])&&p[1]>0; });
+    if(ks.length>1){ mk("PCC").pts=ks; } else mk("PCC").err=1;
+  }catch(e){ mk("PCC").err=1; }
+}
+function drawIC(key){
+  var d=SENTD.daily[key], host=document.getElementById("ch_"+key);
+  if(!d||!host||d.pts.length<2) return;
+  var pts=d.pts, n=pts.length, vw=d.view;
+  if(!vw.i1){ vw.i1=n; vw.i0=Math.max(0,n-126); }   /* 初期表示＝直近6か月（約126営業日） */
+  var w0=vw.i1-vw.i0;
+  vw.i0=Math.max(0,Math.min(n-w0,vw.i0)); vw.i1=vw.i0+w0;
+  if(vw.i1>n){ vw.i1=n; vw.i0=Math.max(0,n-w0); }
+  var W=860,H=360,L=56,R=14,T=14,B=34,pw=W-L-R,ph=H-T-B;
+  var vis=pts.slice(vw.i0,vw.i1), ys=vis.map(function(p){ return p[1]; });
+  var mn,mx;
+  if(vw.auto){ mn=Math.min.apply(null,ys); mx=Math.max.apply(null,ys); }
+  else{ mn=Math.min.apply(null,pts.map(function(p){ return p[1]; })); mx=Math.max.apply(null,pts.map(function(p){ return p[1]; })); }
+  var pd=((mx-mn)*0.10)||1; mn-=pd; mx+=pd;   /* ±10% */
+  function X(i){ return L+pw*i/(vis.length-1); }
+  function Y(v){ return T+ph*(1-(v-mn)/(mx-mn)); }
+  var g="";
+  for(var t=0;t<5;t++){ var vv=mn+(mx-mn)*t/4, yy=Y(vv);
+    g+="<line x1=\""+L+"\" x2=\""+(W-R)+"\" y1=\""+yy.toFixed(1)+"\" y2=\""+yy.toFixed(1)+"\" stroke=\"#232a32\" stroke-width=\"1\"/>";
+    g+="<text x=\""+(L-6)+"\" y=\""+(yy+3.5).toFixed(1)+"\" text-anchor=\"end\" fill=\"#9aa4b2\" font-size=\"11\">"+fmtV(vv)+"</text>"; }
+  for(var t2=0;t2<6;t2++){ var idx=Math.round((vis.length-1)*t2/5), xx=X(idx);
+    g+="<text x=\""+xx.toFixed(1)+"\" y=\""+(H-10)+"\" text-anchor=\"middle\" fill=\"#9aa4b2\" font-size=\"11\">"+esc0(vis[idx][0].replace(/-/g,"/"))+"</text>"; }
+  g+="<polyline fill=\"none\" stroke=\"#4aa3ff\" stroke-width=\"2\" stroke-linejoin=\"round\" points=\""+vis.map(function(p,i){ return X(i).toFixed(1)+","+Y(p[1]).toFixed(1); }).join(" ")+"\"/>";
+  g+="<circle cx=\""+X(vis.length-1).toFixed(1)+"\" cy=\""+Y(vis[vis.length-1][1]).toFixed(1)+"\" r=\"3\" fill=\"#4aa3ff\"/>";
+  host.innerHTML="<svg viewBox=\"0 0 "+W+" "+H+"\" role=\"img\">"+g+"</svg>";
+}
+function zoomIC(key,f){
+  var d=SENTD.daily[key]; if(!d||d.pts.length<2) return;
+  var n=d.pts.length, v=d.view, c=(v.i0+v.i1)/2, w0=Math.round(Math.min(n,Math.max(10,(v.i1-v.i0)*f)));
+  var i0=Math.max(0,Math.min(n-w0,Math.round(c-w0/2))); v.i0=i0; v.i1=i0+w0; drawIC(key);
+}
+function attachIC(key){
+  var d=SENTD.daily[key], host=document.getElementById("ch_"+key);
+  if(!d||!host||d.pts.length<2) return;
+  var drag=null;
+  host.style.touchAction="pan-y"; host.style.cursor="grab";
+  host.addEventListener("pointerdown",function(e){ drag={x:e.clientX,i0:d.view.i0,i1:d.view.i1}; try{ host.setPointerCapture(e.pointerId); }catch(e2){} host.style.cursor="grabbing"; });
+  host.addEventListener("pointermove",function(e){
+    if(!drag) return;
+    var w0=drag.i1-drag.i0, W=host.getBoundingClientRect().width||800, pw=W-70;
+    var sh=Math.round((drag.x-e.clientX)/pw*w0), n=d.pts.length;
+    var i0=Math.max(0,Math.min(n-w0,drag.i0+sh));
+    d.view.i0=i0; d.view.i1=i0+w0; drawIC(key); });
+  function up(){ drag=null; host.style.cursor="grab"; }
+  host.addEventListener("pointerup",up); host.addEventListener("pointercancel",up);
+  host.addEventListener("wheel",function(e){ e.preventDefault(); zoomIC(key, e.deltaY>0?1.18:0.85); },{passive:false});
+}
+document.addEventListener("click",function(e){
+  var rb=e.target&&e.target.closest?e.target.closest("[data-retry]"):null;
+  if(rb){ var k=rb.getAttribute("data-retry");
+    if(k==="bbar"){ SENTD.bbar=null; loadBBAR().then(sentRender); }
+    else if(k==="cnn"){ SENTD.cnn=null; loadCNN().then(sentRender); }
+    else if(k==="aaii"){ SENTD.aaii=null; loadAAII().then(sentRender); }
+    return; }
+  var b=e.target&&e.target.closest?e.target.closest(".ic-ctl button"):null; if(!b) return;
+  var k=b.getAttribute("data-tk"), a=b.getAttribute("data-a");
+  if(a==="zl") zoomIC(k,1.3);
+  else if(a==="zr") zoomIC(k,0.77);
+  else if(a==="auto"){ var d=SENTD.daily[k]; if(d){ d.view.auto=!d.view.auto; drawIC(k); b.classList.toggle("on",d.view.auto); } }
+});
+
 function sect(t,lv,asof,body){
   return "<div class=\"sc\"><h3>"+esc0(t)+"</h3><span class=\"lv\">"+esc0(lv)+"</span><span class=\"dt\">"+esc0(asof||"")+"</span>"+body+"</div>";
 }
 function sentRender(){
   var el=document.getElementById("sentbody"); if(!el) return;
   var out="";
-  ["^VIX","PCC","US10Y"].forEach(function(tk){
-    var c=CDATA[tk]||{}, m=c.map, pts=ptsFromMap(m), name=(tk==="^VIX")?"VIX（恐怖指数）":(tk==="PCC"?"プット/コールレシオ":"米国10年債利回り");
-    out+=sect(name,fmtV(c.last),(c.asof||"")+(pts.length? "／月次"+pts.length+"点":""),
-      (pts.length>1? svgTrend(pts) : "<div class=\"wait\">取得中…（データ到着後に自動更新）</div>"));
+  ["VIX","PCC","US10Y"].forEach(function(key){
+    var nm=(key==="VIX")?"VIX（恐怖指数）":(key==="PCC"?"プット/コールレシオ":"米国10年債利回り");
+    var tk=(key==="VIX")?"^VIX":key, c=CDATA[tk]||{}, d=SENTD.daily[key];
+    var lv=(typeof c.last==="number")?fmtV(c.last):((d&&d.pts.length)?fmtV(d.pts[d.pts.length-1][1]):"取得中…");
+    var asof=(c.asof||"")+(d&&d.pts.length? (c.asof?"／":"")+d.pts[d.pts.length-1][0]:"");
+    var body;
+    if(d&&d.pts&&d.pts.length>1){
+      body="<div class=\"cwrap\"><div id=\"ch_"+key+"\"></div>"
+          +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\""+key+"\" data-a=\"zl\">−</button>"
+          +"<button type=\"button\" data-tk=\""+key+"\" data-a=\"zr\">＋</button>"
+          +"<button type=\"button\" data-tk=\""+key+"\" data-a=\"auto\" class=\""+(d.view.auto?"on":"")+"\">Auto</button></div></div>";
+    } else body="<div class=\"wait\">"+(d&&d.err?"取得できません":"取得中…（過去2年分の日次データ）")+"</div>";
+    out+=sect(nm,lv,asof+"／日次・2年分（表示は直近6か月）",body);
   });
   var cn=SENTD.cnn||{};
   out+=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:""),
-    (cn.pts&&cn.pts.length>1)? svgTrend(cn.pts) : "<div class=\"wait\">"+(cn.err?"取得できません（Bot対策のため実ブラウザでのプロキシ経由が必要）":"取得中…")+"</div>");
+    (cn.pts&&cn.pts.length>1)? svgTrend(cn.pts) : "<div class=\"wait\">"+(cn.err?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>");
   var aa=SENTD.aaii||{};
   out+=sect("AAIIセンチメント",(typeof aa.b==="number"? "強気 "+aa.b+"%" : (aa.err?"取得できません":"取得中…")),(aa.asof||"")+(typeof aa.n==="number"? "／中間 "+aa.n+"%・弱気 "+aa.s+"%（訪問ごとに履歴を蓄積）":""),
-    (aa.pts&&aa.pts.length>1)? svgTrend(aa.pts,"#3fbf7f") : "<div class=\"wait\">"+(aa.err?"取得できません":"取得中…（履歴はこの端末での蓄積分）")+"</div>");
+    (aa.pts&&aa.pts.length>1)? svgTrend(aa.pts,"#3fbf7f") : "<div class=\"wait\">"+(aa.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（履歴はこの端末での蓄積分）")+"</div>");
   var bb=SENTD.bbar||{};
   out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）",
-    (bb.pts&&bb.pts.length>1)? svgTrend(bb.pts,"#f0a53a") : "<div class=\"wait\">"+(bb.err?"取得できません":"取得中…")+"</div>");
+    (bb.pts&&bb.pts.length>1)? svgTrend(bb.pts,"#f0a53a") : "<div class=\"wait\">"+(bb.err?"取得できません <span class=\"sb\" data-retry=\"bbar\">再試行</span>":"取得中…")+"</div>");
   el.innerHTML=out;
+  ["VIX","PCC","US10Y"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ drawIC(k); attachIC(k); } });
 }
 function sentToggle(){
-  var el=document.getElementById("sentview");
+  var el=document.getElementById("sentview"), w=document.getElementById("wrap");
   if(el.style.display==="block"){
-    el.style.display="none"; document.body.style.overflow="";
+    el.style.display="none"; if(w) w.style.display="";
   }else{
-    el.style.display="block"; document.body.style.overflow="hidden";
-    el.innerHTML="<h2>市場センチメント</h2><div class=\"sub\">各指標の<b>実数値</b>の推移（乖離率ではありません）。金利等の他タブと独立しています。"
+    el.style.display="block"; if(w) w.style.display="none";
+    try{ window.scrollTo(0,0); }catch(e){}
+    el.innerHTML="<h2>市場センチメント</h2><div class=\"sub\">各指標の<b>実数値</b>の推移（乖離率ではありません）。金利等の他タブと独立しています。VIX／PCC／米10年債は<b>過去2年分の日次</b>（初期表示は直近6か月）。グラフ内<b>ドラッグ＝左右移動</b>、<b>ホイール／＋−ボタン＝拡大縮小</b>、<b>Auto＝表示範囲の縦軸フィット（最大+10%／最小-10%）</b>。"
       +"股ブルベア指数は UPRO（S&P500ブル3倍）÷SPXS（S&P500ベア3倍）の比＝代理指標。股AAIIはこの端末での蓄積履歴。股出典： CBOE／CNN／AAII／Yahoo Finance（公開データ）。</div>"
       +"<span class=\"sb\" id=\"sentback\">← 戻る</span><div id=\"sentbody\"><div class=\"wait\">取得中…</div></div>";
     var bk=document.getElementById("sentback"); bk.addEventListener("click",sentToggle);
@@ -3850,6 +3967,7 @@ function sentToggle(){
   }
 }
 document.addEventListener("click",function(e){ var t=e.target&&e.target.closest?e.target.closest("#sentbtn"):null; if(t){ e.preventDefault(); sentToggle(); } });
+window.addEventListener("hashchange",function(){ var el=document.getElementById("sentview"); if(el&&el.style.display==="block"){ el.style.display="none"; var w=document.getElementById("wrap"); if(w) w.style.display=""; } });   /* 他タブクリックでセンチメントを閉じる */
 })();
 
 </script>

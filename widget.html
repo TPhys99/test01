@@ -3944,14 +3944,16 @@ function sentEnsure(){
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
-  try{ var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",9000);
-    if(t){ var j=JSON.parse(t), r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, pts=[];
+  try{ var rr=await fetchDirect("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",4000);
+    var t=rr&&rr.body; if(!t){ var t2=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",9000); t=t2; }
+    if(t){ var j=jsonOf(t); if(!j) throw 0; var r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, pts=[];
       for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var dd=new Date(ts[i]*1000); pts.push([dd.getFullYear()+"-"+pad2(dd.getMonth()+1)+"-"+pad2(dd.getDate()),+q[i]]); } }
       if(pts.length>1){ mk("VIX").pts=pts; } else mk("VIX").err=1; } else mk("VIX").err=1;
   }catch(e){ mk("VIX").err=1; }
   try{
     async function trCSV(y){
-      var t=await sentFetch("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/"+y+"/all?type=daily_treasury_yield_curve&field_tdr_date_value="+y+"&_format=csv",10000);
+      var rr2=await fetchWithJina("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/"+y+"/all?type=daily_treasury_yield_curve&field_tdr_date_value="+y+"&_format=csv",6000,12000);
+      var t=(rr2&&rr2.body)?textOf(rr2.body):null;
       if(!t) return [];
       var ln=t.split(/\r?\n/), hd=ln[0].split(","), ci=-1;
       for(var h=0;h<hd.length;h++){ if(hd[h].trim()==="10 Yr"){ ci=h; break; } }
@@ -4041,7 +4043,7 @@ function sentRender(){
     var nm=(key==="VIX")?"VIX（恐怖指数）":(key==="PCC"?"プット/コールレシオ":"米国10年債利回り");
     var tk=(key==="VIX")?"^VIX":key, c=CDATA[tk]||{}, d=SENTD.daily[key];
     var lv=(typeof c.last==="number")?fmtV(c.last):((d&&d.pts.length)?fmtV(d.pts[d.pts.length-1][1]):"取得中…");
-    var asof=(c.asof||"")+(d&&d.pts.length? (c.asof?"／":"")+d.pts[d.pts.length-1][0]:"");
+    var asof=(c.asof||"")+((d&&d.pts.length&&c.asof!==d.pts[d.pts.length-1][0])? (c.asof?"／":"")+d.pts[d.pts.length-1][0]:"");
     var body;
     if(d&&d.pts&&d.pts.length>1){
       body="<div class=\"cwrap\"><div id=\"ch_"+key+"\"></div>"
@@ -4067,8 +4069,10 @@ function sentToggle(){
   var el=document.getElementById("sentview"), w=document.getElementById("wrap");
   if(el.style.display==="block"){
     el.style.display="none"; if(w) w.style.display="";
+    try{ renderNav(); }catch(e2){} try{ wTabs(); }catch(e3){}   /* 選択タブ表示を復元 */
   }else{
     el.style.display="block"; if(w) w.style.display="none";
+    document.querySelectorAll("#pnav a.on, #tabs button.on").forEach(function(x){ x.classList.remove("on"); });   /* 選択タブの残留解除 */
     try{ window.scrollTo(0,0); }catch(e){}
     el.innerHTML="<h2>市場センチメント</h2><div class=\"sub\">各指標の<b>実数値</b>の推移（乖離率ではありません）。金利等の他タブと独立しています。VIX／PCC／米10年債は<b>過去2年分の日次</b>（初期表示は直近6か月）。グラフ内<b>ドラッグ＝左右移動</b>、<b>ホイール／＋−ボタン＝拡大縮小</b>、<b>Auto＝表示範囲の縦軸フィット（最大+10%／最小-10%）</b>。"
       +"股ブルベア指数は UPRO（S&P500ブル3倍）÷SPXS（S&P500ベア3倍）の比＝代理指標。股AAIIはこの端末での蓄積履歴。股出典： CBOE／CNN／AAII／Yahoo Finance（公開データ）。</div>"

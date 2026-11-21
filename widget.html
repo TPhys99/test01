@@ -231,6 +231,7 @@ body{
 </head>
 <body>
 <div id="tabs"></div>
+<a id="sentbtn" style="display:inline-block;background:#0f3d6d;color:#ffd97a;border:2px solid #6cb6ff;border-radius:14px;padding:6px 14px;font-size:13px;font-weight:bold;cursor:pointer;margin-left:8px;vertical-align:middle;text-decoration:none">市場センチメント</a>
 <div id="wrap"></div>
 <div id="foot"><span id="fst"></span><br><a id="full" href="#">全画面ダッシュボードを開く →</a><div id="srcnote" style="font-size:10px;line-height:1.6;opacity:.7;margin-top:4px">データ出典： 財務省（mof.go.jp）／米国財務省（home.treasury.gov）／ECB（data.ecb.europa.eu）／Deutsche Bundesbank（bundesbank.de）／World Bank Open Data（CC BY 4.0）ほか。月次化・実質金利（名目−CPI）等の加工は本サイトによる。株価・FX・暗号は Yahoo Finance／東方財富の公開APIを訪問者のブラウザから直接取得（非公式・各社の利用規約をご確認ください）。本ページは市場データの表示であり投資助言ではありません。投資判断はご自身の責任で。</div></div>
 
@@ -243,7 +244,7 @@ body{
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-21-2317";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
+const BUILD="v2026-11-21-2355";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
@@ -3851,12 +3852,10 @@ setInterval(function(){ if(document.hidden) return; try{ wRender(); }catch(e){} 
 <script>
 /* ===== v1730: 市場センチメント（独立タブ・実数値トレンド表示） ===== */
 (function(){
-if(document.getElementById("sentbtn")) return;
 var st=document.createElement("style");
-st.textContent="#sentbtn{position:fixed;right:12px;bottom:12px;z-index:98;background:#12314f;color:#8ec6ff;border:1px solid #2c5a8a;border-radius:18px;padding:7px 14px;font-size:12.5px;cursor:pointer}#sentview{position:fixed;inset:0;z-index:99;background:#0b0e12;color:#e9eef5;overflow:auto;padding:14px 14px 40px;display:none}#sentview h2{font-size:17px;margin:2px 0 2px}#sentview .sub{font-size:11px;color:#9aa4b2;margin-bottom:10px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:4px 14px;font-size:12px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:10px;padding:10px 12px;margin:10px 0}#sentview .sc h3{margin:0 0 2px;font-size:14.5px;color:#e9eef5}#sentview .lv{font-size:24px;font-weight:700}#sentview .dt{font-size:11px;color:#9aa4b2;margin-left:8px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:18px 0}#sentview svg{width:100%;height:auto;display:block}";
+st.textContent="#sentbtn{display:inline-block;background:#0f3d6d;color:#ffd97a;border:2px solid #6cb6ff;border-radius:14px;padding:6px 14px;font-size:13px;font-weight:bold;cursor:pointer;margin-left:8px;vertical-align:middle;text-decoration:none}#sentbtn:hover{background:#1a4266}#sentview{position:fixed;inset:0;z-index:99;background:#0b0e12;color:#e9eef5;overflow:auto;padding:14px 14px 40px;display:none}#sentview h2{font-size:17px;margin:2px 0 2px}#sentview .sub{font-size:11px;color:#9aa4b2;margin-bottom:10px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:4px 14px;font-size:12px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:10px;padding:10px 12px;margin:10px 0}#sentview .sc h3{margin:0 0 2px;font-size:14.5px;color:#e9eef5}#sentview .lv{font-size:24px;font-weight:700}#sentview .dt{font-size:11px;color:#9aa4b2;margin-left:8px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:18px 0}#sentview svg{width:100%;height:auto;display:block}";
 document.head.appendChild(st);
-var b=document.createElement("a"); b.id="sentbtn"; b.textContent="市場センチメント"; b.style.cursor="pointer";
-document.body.appendChild(b);
+var b=document.getElementById("sentbtn"); if(!b){ b=document.createElement("a"); b.id="sentbtn"; b.textContent="市場センチメント"; document.body.appendChild(b); } b.style.cursor="pointer";   /* v1733: 静的HTMLのタブを使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 var SENTD={};
 function esc0(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }

@@ -234,7 +234,7 @@ footer b{color:var(--tx)}
     数値は<b>指数そのものではなく指数連動ETFの終値</b>を用いた騰落率です（手数料・トラッキング差・為替の影響を含みます）。
     <b>「配」印の8要素（債券7＋ダウ平均配当株）は分配金込み（調整後終値）</b>、それ以外は分配金を含まない価格ベースです。
     暗号通貨はUSD建て価格（24時間取引）です。数値は開いた時点で自動取得します（初期値は埋め込んでいません）。
-    <b>「主要国名目市場金利」は各国の2年・10年国債利回り（％）</b>で、名前の右の枠内が直近の水準、その右の騰落率は<b>その水準の相対変化</b>です（例：4.00%→4.20%は+5.0%＝+20bp）。
+    <b>「名目市場金利」は各国の2年・10年国債利回り（％）</b>で、名前の右の枠内が直近の水準、その右の騰落率は<b>その水準の相対変化</b>です（例：4.00%→4.20%は+5.0%＝+20bp）。
     出所は国ごとに異なります（米＝米国財務省、ユーロ圏＝ECB、独・英・日・中・韓・印・伯＝東方財富の日次データ）。並び順は名目GDPの大きい順です（IMF WEO 2026年10月・2025年値。ユーロ圏は通貨同盟として掲載し、ドイツは域内最大国として併記しています）。
   </p>
   <div class="grid" id="defs"></div>
@@ -254,12 +254,13 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-14-1238";
+const BUILD="v2026-11-21-2000";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
 const SECTIONS=[
- {t:"主要国名目市場金利",col:0,items:[
+ {t:"市場心理",col:0,items:[["VIX恐怖指数(^VIX)","^VIX"],["プット/コールレシオ(PCC)","PCC"]]},
+ {t:"名目市場金利",col:0,items:[
    ["米国2年","US2Y","hl","rt"],["米国10年","US10Y","hl","rt"],
    ["日本2年","JP2Y","hl","rt"],["日本10年","JP10Y","hl","rt"],
    ["インド2年","IN2Y",null,"rt"],["インド10年","IN10Y",null,"rt"],
@@ -269,17 +270,16 @@ const SECTIONS=[
    ["英国2年","GB2Y",null,"rt"],["英国10年","GB10Y",null,"rt"],
    ["ブラジル10年","BR10Y",null,"rt"],
    ["韓国2年","KR2Y",null,"rt"],["韓国10年","KR10Y",null,"rt"]]},
- {t:"主要国実質金利",col:0,items:[
+ {t:"実質金利",col:0,items:[
    ["米国","USRR","hl","rr"],["日本","JPRR","hl","rr"],["インド","INRR",null,"rr"],
    ["中国","CNRR",null,"rr"],["ユーロ圏","EURRR",null,"rr"],["ドイツ","DERR",null,"rr"],
    ["英国","GBRR",null,"rr"],["ブラジル","BRRR",null,"rr"],["韓国","KRRR",null,"rr"]]},
 {t:"債券ETF",col:0,items:[["短期債","SHY",null,"dv"],["中期債","IEF",null,"dv"],["20年超債券","TLT",null,"dv"],["債券合計","AGG",null,"dv"],["債券全般","BND",null,"dv"],["TIPS","TIP",null,"dv"],["ハイイールド債","HYG",null,"dv"]]},
  {t:"為替",col:0,items:[["ドル指数","DX-Y.NYB","hl"],["ドル/円","JPY=X","hl"],["ユーロ/ドル","EURUSD=X"],["ドル/ルピー","USDINR=X"],["ルピー/円","INRJPY=X"]]},
- {t:"米国主要株価指数",col:1,items:[["S&P500指数","^GSPC","hl"],["S&P中型株400指数","^SP400","hl"],["S&P小型株600指数","^SP600","hl"],["ダウ平均指数","^DJI","hl"],["ナスダック100指数","^NDX","hl"],["ラッセル1000指数","^RUI","hl"],["ラッセル2000指数","^RUT","hl"],["ラッセル3000指数","^RUA","hl"],["S&P500グロースETF","IVW","hl"],["S&P中型400グロースETF","IJK","hl"],["S&P小型600グロースETF","IJT","hl"],["S&P500バリューETF","IVE","hl"],["S&P中型400バリューETF","IJJ","hl"],["S&P小型600バリューETF","IJS","hl"],["ダウ平均配当株ETF","DVY","hl","dv"],["S&P500均等ウェイトETF","RSP","hl"]]},
+ {t:"株価指数（米国）",col:1,items:[["S&P500指数","^GSPC","hl"],["S&P中型株400指数","^SP400","hl"],["S&P小型株600指数","^SP600","hl"],["ダウ平均指数","^DJI","hl"],["ナスダック100指数","^NDX","hl"],["ラッセル1000指数","^RUI","hl"],["ラッセル2000指数","^RUT","hl"],["ラッセル3000指数","^RUA","hl"],["S&P500グロースETF","IVW","hl"],["S&P中型400グロースETF","IJK","hl"],["S&P小型600グロースETF","IJT","hl"],["S&P500バリューETF","IVE","hl"],["S&P中型400バリューETF","IJJ","hl"],["S&P小型600バリューETF","IJS","hl"],["ダウ平均配当株ETF","DVY","hl","dv"],["S&P500均等ウェイトETF","RSP","hl"]]},
 {t:"S&P500セクターETF",col:1,items:[["一般消費財","XLY","hl"],["生活必需品","XLP","hl"],["エネルギー","XLE","hl"],["金融","XLF","hl"],["ヘルスケア","XLV","hl"],["工業","XLI","hl"],["素材","XLB","hl"],["テクノロジー","XLK","hl"],["通信サービス","XLC","hl"],["公益","XLU","hl"],["不動産","XLRE","hl"]]},
- {t:"主要国株式指数",col:2,items:[['米国',"^GSPC","S&P500","hl"],['日本',"^N225","日経平均","hl"],["インド","^BSESN","SENSEX"],["中国","000001.SS","上海総合"],["香港","^HSI","ハンセン"],["ドイツ","^GDAXI","DAX"],["英国","^FTSE","FTSE100"],["フランス","^FCHI","CAC40"],["イタリア","FTSEMIB.MI","FTSE MIB"],["スペイン","^IBEX","IBEX35"],["カナダ","^GSPTSE","TSX"],["豪州","^AXJO","ASX200"],["ブラジル","^BVSP","ボベスパ"],["メキシコ","^MXX","IPC"],["南アフリカ","EZA","南アフリカETF"],["中東","EIS","中東ETF"],["新興国","EEM","新興国ETF"]]},
- {t:"その他ETF",col:2,items:[["VIX恐怖指数(^VIX)","^VIX"],["プット/コールレシオ(PCC)","PCC"],
-  ["テールリスク指数(^SKEW)","^SKEW"],["S&P500(SPY)","SPY"],["ダウ(DIA)","DIA"],
+ {t:"株式指数（米国以外）",col:2,items:[['米国',"^GSPC","S&P500","hl"],['日本',"^N225","日経平均","hl"],["インド","^BSESN","SENSEX"],["中国","000001.SS","上海総合"],["香港","^HSI","ハンセン"],["ドイツ","^GDAXI","DAX"],["英国","^FTSE","FTSE100"],["フランス","^FCHI","CAC40"],["イタリア","FTSEMIB.MI","FTSE MIB"],["スペイン","^IBEX","IBEX35"],["カナダ","^GSPTSE","TSX"],["豪州","^AXJO","ASX200"],["ブラジル","^BVSP","ボベスパ"],["メキシコ","^MXX","IPC"],["南アフリカ","EZA","南アフリカETF"],["中東","EIS","中東ETF"],["新興国","EEM","新興国ETF"]]},
+ {t:"その他ETF",col:2,items:[["テールリスク指数(^SKEW)","^SKEW"],["S&P500(SPY)","SPY"],["ダウ(DIA)","DIA"],
   ["ナスダック100(QQQ)","QQQ"],["全世界株(除く米国)(VXUS)","VXUS"],["ラッセル2000(IWM)","IWM"],
   ["先進国株(EFA)","EFA"],["新興国株コア(IEMG)","IEMG"],["新興国株大型(EEM)","EEM"],
   ["米国半導体25〜30社(SOXX)","SOXX"],["金鉱山株(GDX)","GDX"],["金現物(GLD)","GLD"],["ビットコイン現物(IBIT)","IBIT"]]},
@@ -3141,7 +3141,7 @@ function wScale(){
   const p=PERIODS[CUR];
   const pt=(p&&p.d1)? 0.3 : (CUR===0? 10 : 3);
   const pc=(p&&p.d1)? 3   : (CUR===0? 100 : 20);
-  return [pt,pt,pc,pc,pc,pc,pc,pc,pc,pc];
+  return [pc,pt,pt,pc,pc,pc,pc,pc,pc,pc,pc];   /* v1720: 11要素（市場心理は%扱い） */
 }
 function drawHeat(secIdx){ try{ return drawHeatInner(secIdx); }catch(err){
   const b=document.getElementById("chw");
@@ -3261,7 +3261,7 @@ function openHeat(i){
 }
 function bindHeat(){
   /* 見出しは board=<h2> / widget=<div class="wsh"> と構造が違う。しかも widget の
-     テキストは「1名目市場金利 … バー範囲 ±100%」で、セクション正式名（主要国名目市場金利）
+     テキストは「1市場心理 … バー範囲 ±100%」で、セクション正式名（名目市場金利）
      とは一致しないため、テキスト照合では絶対に当たらなかった。
      → 描画側で data-sec="番号" を付け、それを最優先で拾う（テキスト照合は保険）。 */
   const hit=function(i,n){

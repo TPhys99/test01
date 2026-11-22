@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-22-1637";
+const BUILD="v2026-11-22-1650";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3742,7 +3742,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-22-1637: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-22-1650: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3775,6 +3775,7 @@ async function sentFetch(u,ms){
   try{ var r3=await fetch("https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u)); if(r3.ok){ var t3=await r3.text(); if(t3&&t3.length>40) return t3; } }catch(e){}
   try{ var r4=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(u)); if(r4.ok){ var t4=await r4.text(); if(t4&&t4.length>40) return t4; } }catch(e){}
   try{ var r5=await fetch("https://corsproxy.io/?url="+encodeURIComponent(u)); if(r5.ok){ var t5=await r5.text(); if(t5&&t5.length>40) return t5; } }catch(e){}
+  try{ var r6=await fetch("https://api.cors.lol/?url="+encodeURIComponent(u)); if(r6.ok){ var t6=await r6.text(); if(t6&&t6.length>40) return t6; } }catch(e){}
   return null;
 }
 async function loadCNN(){
@@ -3796,6 +3797,20 @@ async function loadCNN(){
     var _asof=String(fg.previous_close_date||"");
     if(_asof.length>10) _asof=_asof.slice(0,10);
     SENTD.cnn={last:fg.score,rating:fg.rating,asof:_asof,pts:pts};
+    if(pts.length<3){   /* 履歴JSONが薄い場合は日別エンドポイントを週次間引きで2年分収集（最大104リクエスト・途中経過も描画） */
+      var base=new Date(Date.now()), pts2=[];
+      for(var wk=0;wk<104&&pts.length+pts2.length<400;wk++){
+        var dd=new Date(base.getTime()-wk*7*864e5), ds2=dd.toISOString().slice(0,10);
+        try{
+          var rr=await sentFetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata/"+ds2,4000);
+          if(rr){ var jj=jsonOf(rr);
+            if(jj&&jj.fear_and_greed&&isFinite(jj.fear_and_greed.score)&&jj.fear_and_greed.score>=0&&jj.fear_and_greed.score<=100){
+              pts2.push([ds2,jj.fear_and_greed.score]); } }
+        }catch(e3){}
+        if(wk%8===7) sentRender();
+      }
+      pts=pts.concat(pts2).sort(function(a,b){ return a[0]<b[0]?-1:1; });
+    }
     if(pts.length>1) SENTD.daily.CNNF={pts:mkCC(pts),view:{i0:0,i1:0,auto:true,tf:"d"}};
   }catch(e){ SENTD.cnn={err:1}; }
 }
@@ -3892,7 +3907,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-22-1637: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-22-1650: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -3950,6 +3965,27 @@ function aggPts(pts,tf){
   });
   return out;
 }
+var SYNCBUSY=0;
+function syncViews(srcKey){
+  SYNCBUSY++;
+  try{
+    var src=SENTD.daily[srcKey]||(srcKey==="AAII2"?SENTD.aaii2:null); if(!src||!src.pts||src.pts.length<2) return;
+    var vw=src.view, n=src.pts.length, w0=vw.i1-vw.i0;
+    if(!w0) return;
+    var rr0=vw.i0/n, rr1=(vw.i0+w0)/n;   /* 全体に対する表示割合 */
+    ["VIX","PCC","US10Y","CNNF","BBAR"].forEach(function(k){
+      var t=SENTD.daily[k]; if(!t||!t.pts||t.pts.length<2||k===srcKey||!t.view.i1) return;
+      var tn=t.pts.length;
+      t.view.i0=Math.round(rr0*tn); t.view.i1=Math.round(rr1*tn); t.view.__n=0; drawIC(k);
+    });
+    var a2=SENTD.aaii2;
+    if(a2&&a2.pts&&a2.pts.length>1&&srcKey!=="AAII2"&&a2.view.i1){
+      var tn2=a2.pts.length;
+      a2.view.i0=Math.round(rr0*tn2); a2.view.i1=Math.round(rr1*tn2); a2.view.__n=0; drawIC("AAII2");
+    }
+  }catch(e){}
+  finally{ SYNCBUSY--; }
+}
 function drawIC(key){
   var d=(key==="AAII2")?SENTD.aaii2:SENTD.daily[key], host=document.getElementById("ch_"+key);
   if(!d||!host||!d.pts||d.pts.length<2) return;
@@ -4004,6 +4040,7 @@ function drawIC(key){
   g+="<rect class=\"vs\" data-tk=\""+key+"\" x=\""+(W-R)+"\" y=\""+T+"\" width=\"14\" height=\""+ph+"\" fill=\"transparent\" style=\"cursor:ns-resize\"/>";
   g+="<rect class=\"hs\" data-tk=\""+key+"\" x=\""+L+"\" y=\""+(H-B+8)+"\" width=\""+pw+"\" height=\"26\" fill=\"transparent\" style=\"cursor:ew-resize\"/>";
   host.innerHTML="<svg viewBox=\"0 0 "+W+" "+H+"\" role=\"img\">"+g+"</svg>";
+  if(!vw.__sync&&SYNCBUSY===0){ SYNCBUSY++; try{ syncViews(key); }finally{ SYNCBUSY--; } }
 }
 function zoomIC(key,f){
   var d=(key==="AAII2")?SENTD.aaii2:SENTD.daily[key]; if(!d||!d.pts||d.pts.length<2) return;

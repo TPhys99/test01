@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-22-2000";
+const BUILD="v2026-11-22-2007";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3742,7 +3742,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-22-2000: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-22-2007: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3779,7 +3779,8 @@ async function sentFetch(u,ms){
   return null;
 }
 async function loadCNN(){
-  function applyCNN(pts,meta){ SENTD.cnn=meta; SENTD.daily.CNNF={pts:mkCC(pts),view:{i0:0,i1:0,auto:true,tf:"d"}}; sentRender(); sentCacheSave(); }
+  function applyCNN(pts,meta){ var cc=mkCC(pts); if(!cc||cc.length<2||!cc.every(function(p){ return p&&p.length===5&&isFinite(p[2])&&isFinite(p[3])&&isFinite(p[4]); })) cc=pts.map(function(p,i){ var c=+p[1], op=i>0?+pts[i-1][1]:c; return [p[0],op,Math.max(op,c),Math.min(op,c),c]; });
+    SENTD.cnn=meta; SENTD.daily.CNNF={pts:cc,view:{i0:0,i1:0,auto:true,tf:"d"}}; sentRender(); sentCacheSave(); }
   var mirrorApplied=false, realApplied=false;
   /* 1) ミラー（raw.githubusercontent・即時・確実）を先に単独で取得し、届き次第すぐ表示 */
   (async function(){
@@ -3789,9 +3790,12 @@ async function loadCNN(){
         var stg=await tg.text(), jg=JSON.parse(stg.slice(stg.indexOf("{"), stg.lastIndexOf("}")+1)), fg2=jg.fear_greed||null;
         if(fg2&&isFinite(fg2.score)&&fg2.score>=0&&fg2.score<=100&&!realApplied){
           var nowY=Math.floor(fg2.score);
-          var ptm=[["previous_1_year",fg2.previous_1_year],["previous_1_month",fg2.previous_1_month],["previous_1_week",fg2.previous_1_week],["previous_close",fg2.previous_close]]
-            .filter(function(x){ return isFinite(x[1])&&x[1]>=0&&x[1]<=100; })
-            .map(function(x,i,arr){ var dd=new Date(Date.now()-(arr.length-i)*7*864e5).toISOString().slice(0,10); return [dd,x[1]]; });
+          var ptm=(Array.isArray(fg2.history)&&fg2.history.length>2)?
+            fg2.history.map(function(h){ return [String(h.date||h.t||"").slice(0,10),(typeof h.score==="number")?h.score:parseFloat(h.score)]; })
+              .filter(function(p){ return /^20\d\d-\d\d-\d\d$/.test(p[0])&&isFinite(p[1])&&p[1]>=0&&p[1]<=100; }):
+            [["previous_1_year",fg2.previous_1_year],["previous_1_month",fg2.previous_1_month],["previous_1_week",fg2.previous_1_week],["previous_close",fg2.previous_close]]
+              .filter(function(x){ return isFinite(x[1])&&x[1]>=0&&x[1]<=100; })
+              .map(function(x,i,arr){ var dd=new Date(Date.now()-(arr.length-i)*7*864e5).toISOString().slice(0,10); return [dd,x[1]]; });
           ptm.push([new Date().toISOString().slice(0,10),nowY]);
           mirrorApplied=true;
           applyCNN(ptm,{last:nowY,rating:fg2.rating||"",asof:String(fg2.timestamp||"").slice(0,10),pts:ptm});
@@ -3842,9 +3846,30 @@ async function loadCNN(){
   if(!(SENTD.cnn&&SENTD.cnn.pts&&SENTD.cnn.pts.length>2)) SENTD.cnn={err:1};
   sentRender(); sentCacheSave();
 }
+async function sentAAIIMirror(){
+  try{
+    var tg2=await fetch("https://raw.githubusercontent.com/gmai1234/sentiment-dashboard/main/sentiment_data.js");
+    if(tg2.ok){
+      var st2=await tg2.text(), j2=JSON.parse(st2.slice(st2.indexOf("{"), st2.lastIndexOf("}")+1)), hist=j2&&j2.aaii&&j2.aaii.history;
+      if(Array.isArray(hist)&&hist.length){
+        var ws2=hist.map(function(w){ return [String(w.date||"").slice(0,10),Math.round(w.bullish*100)/100,Math.round(w.neutral*100)/100,Math.round(w.bearish*100)/100]; })
+          .filter(function(w){ return /^20\d\d-\d\d-\d\d$/.test(w[0])&&isFinite(w[1])&&isFinite(w[2])&&isFinite(w[3]); });
+        if(ws2.length){
+          var l4=ws2.slice(-4).reverse();
+          var bs=ws2.map(function(w){ return w[1]; }), ns=ws2.map(function(w){ return w[2]; }), ss=ws2.map(function(w){ return w[3]; });
+          SENTD.aaii={weeks:l4,
+            avg:[+(bs.reduce(function(a,b){return a+b;},0)/bs.length).toFixed(1),+(ns.reduce(function(a,b){return a+b;},0)/ns.length).toFixed(1),+(ss.reduce(function(a,b){return a+b;},0)/ss.length).toFixed(1)],
+            hiB:[Math.max.apply(null,bs),""],hiN:[Math.max.apply(null,ns),""],hiS:[Math.max.apply(null,ss),""],err:0};
+        }
+      }
+    }
+  }catch(eg3){}
+  if(SENTD.aaii&&SENTD.aaii.err) SENTD.aaii={err:1};
+  try{ sentRender(); }catch(e9){}
+}
 async function loadAAII(){
   var t=await sentFetch("https://www.aaii.com/sentimentsurvey",9000);
-  if(!t){ SENTD.aaii={err:1}; return; }
+  if(!t){ SENTD.aaii={err:1}; await sentAAIIMirror(); return; }
   function us2iso(d){ var m=d.split("/"); if(m.length!==3) return d; return m[2]+"-"+String(+m[0]).padStart(2,"0")+"-"+String(+m[1]).padStart(2,"0"); }
   /* HPの週テーブル: 日付 強気% 中間% 弱気%（合計≈100で検証） */
   var wks=[], m, re=/([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})\D{0,30}?([0-9]{1,2}(?:\.[0-9]+)?)%\D{0,30}?([0-9]{1,2}(?:\.[0-9]+)?)%\D{0,30}?([0-9]{1,2}(?:\.[0-9]+)?)%/g;
@@ -3864,26 +3889,7 @@ async function loadAAII(){
   if(wks.length){ wks.sort(function(x,y){ return x[0]<y[0]?-1:1; }); wks=wks.slice(-4).reverse();
     SENTD.aaii={weeks:wks,avg:avg,hiB:hiB,hiN:hiN,hiS:hiS,err:0};
   } else SENTD.aaii={err:1};
-  /* フォールバック: gmai1234 ミラーの aaii.history（毎日更新・週次22本）→ HPがブロックされていても表示 */
-  if(SENTD.aaii&&SENTD.aaii.err){
-    try{
-      var tg2=await fetch("https://raw.githubusercontent.com/gmai1234/sentiment-dashboard/main/sentiment_data.js");
-      if(tg2.ok){
-        var st2=await tg2.text(), j2=JSON.parse(st2.slice(st2.indexOf("{"), st2.lastIndexOf("}")+1)), hist=j2&&j2.aaii&&j2.aaii.history;
-        if(Array.isArray(hist)&&hist.length){
-          var ws2=hist.map(function(w){ return [String(w.date||"").slice(0,10),Math.round(w.bullish*100)/100,Math.round(w.neutral*100)/100,Math.round(w.bearish*100)/100]; })
-            .filter(function(w){ return /^20\d\d-\d\d-\d\d$/.test(w[0])&&isFinite(w[1])&&isFinite(w[2])&&isFinite(w[3]); });
-          if(ws2.length){
-            var l4=ws2.slice(-4).reverse();
-            var bs=ws2.map(function(w){ return w[1]; }), ns=ws2.map(function(w){ return w[2]; }), ss=ws2.map(function(w){ return w[3]; });
-            SENTD.aaii={weeks:l4,
-              avg:[+(bs.reduce(function(a,b){return a+b;},0)/bs.length).toFixed(1),+(ns.reduce(function(a,b){return a+b;},0)/ns.length).toFixed(1),+(ss.reduce(function(a,b){return a+b;},0)/ss.length).toFixed(1)],
-              hiB:[Math.max.apply(null,bs),""],hiN:[Math.max.apply(null,ns),""],hiS:[Math.max.apply(null,ss),""],err:0};
-          }
-        }
-      }
-    }catch(eg3){}
-  }
+  if(SENTD.aaii&&SENTD.aaii.err) await sentAAIIMirror();
 }
 async function loadBBAR(){
   async function mo(tk){
@@ -4060,7 +4066,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-22-2000: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-22-2007: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4105,7 +4111,7 @@ async function loadDaily(){
     if(ks.length>1){ mk("PCC").pts=ks; } else mk("PCC").err=1;
   }catch(e){ mk("PCC").err=1; }
 }
-function mkCC(raw){ var o=[]; for(var i=0;i<raw.length;i++){ var c=raw[i][1], op=i>0?raw[i-1][1]:c; o.push([raw[i][0],op,Math.max(op,c),Math.min(op,c),c]); } return o; }
+function mkCC(raw){ var o=[]; for(var i=0;i<raw.length;i++){ var c=+raw[i][1], op=i>0?+raw[i-1][1]:c; if(!isFinite(c)) continue; o.push([raw[i][0],op,Math.max(op,c),Math.min(op,c),c]); } return o; }
 function aggPts(pts,tf){
   if(tf==="d"||!pts||pts.length<2) return pts;
   var out=[],ck=null;
@@ -4144,6 +4150,8 @@ function drawIC(key){
   if(!d||!host||!d.pts||d.pts.length<2) return;
   var raw=d.pts, vw=d.view, tf=vw.tf||"d";
   var c2=(key==="AAII2");
+  if(!c2){ raw=raw.filter(function(p){ return p&&p.length>=2&&isFinite(+p[1]); }); if(raw.length<2){ try{ window.__DRAWERR=window.__DRAWERR||{}; window.__DRAWERR[key]="<2 finite rows"; }catch(e){} return; } }
+  if(!c2&&raw[0]&&raw[0].length===2) raw=mkCC(raw);   /* 2列系列は自動でローソク化 */
   var pts=(!c2&&raw[0]&&raw[0].length===5)? aggPts(raw,tf) : raw;
   var n=pts.length;
   if(!vw.i1||(!vw.__user&&vw.__n!==n)){ vw.i1=n; vw.i0=Math.max(0,n-Math.min(n,(key==="AAII2")?26:126)); }   /* データ件数が変わったら初期窓を再適用（ユーザー操作済みなら維持） */
@@ -4356,7 +4364,7 @@ function sentRender(){
   out+=sect("AAIIセンチメント②","100%積み上げ（Bullish/Neutral/Bearish）・取得範囲 "+(aa2&&aa2.pts.length>1? aa2.pts[0][0]+"〜"+aa2.pts[aa2.pts.length-1][0]:"-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
   out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）・日次・2年分（表示は直近6か月）",bbBody);
   el.innerHTML=out;
-  ["VIX","PCC","US10Y","CNNF"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ drawIC(k); attachIC(k); } });
+  ["VIX","PCC","US10Y","CNNF"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ try{ drawIC(k); attachIC(k); }catch(eD){ window.__DRAWERR=window.__DRAWERR||{}; window.__DRAWERR[k]=eD.message; } } });
   if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1){ drawIC("AAII2"); attachIC("AAII2"); }
   if(SENTD.daily.BBAR&&SENTD.daily.BBAR.pts&&SENTD.daily.BBAR.pts.length>1){ drawIC("BBAR"); attachIC("BBAR"); }
   try{ sentCacheSave(); }catch(e8){}

@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-22-1714";
+const BUILD="v2026-11-22-1730";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3742,7 +3742,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-22-1714: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-22-1730: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3914,10 +3914,54 @@ async function loadAAII2(){
       var st=await tg.text(), p0=st.indexOf("="), jg=JSON.parse(st.slice(st.indexOf("{"), st.lastIndexOf("}")+1));
       var hg=(jg.aaii&&jg.aaii.history)||[];
       hg.forEach(function(w){ if(w&&w.date&&isFinite(w.bullish)) add(w.date,w.bullish,w.neutral,w.bearish); });
-      if(ptsCache) {} /* noop */
       window.__GMAI_CNN=jg.fear_greed||null;   /* CNNにも利用可 */
     }
   }catch(eg){}
+  /* tlach00 xlsx（1987〜2025-05・raw取得200実測・PK=zip）: DecompressionStreamで自前展開 */
+  try{
+    var rx=await fetch("https://raw.githubusercontent.com/tlach00/aaii-sentiment-risk-app/main/sentiment_data.xlsx");
+    if(rx.ok){
+      var ab=await rx.arrayBuffer(), outX=[];
+      /* ZIP EOCD→中央ディレクトリ走査→sheet1.xml deflate-raw展開 */
+      var dv=new DataView(ab), u8=new Uint8Array(ab), eocd=-1;
+      for(var z=ab.byteLength-22;z>=Math.max(0,ab.byteLength-70000);z--){
+        if(dv.getUint32(z,true)===0x06054b50){ eocd=z; break; }
+      }
+      if(eocd>=0){
+        var cnt=dv.getUint16(eocd+10,true), cdoff=dv.getUint32(eocd+16,true), p=cdoff, so=-1, sc=0, sm=0;
+        for(var e=0;e<cnt;e++){
+          if(dv.getUint32(p,true)!==0x02014b50) break;
+          var cmethod=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true), nlen=dv.getUint16(p+28,true), elen=dv.getUint16(p+30,true), clen=dv.getUint16(p+32,true), lho=dv.getUint32(p+42,true);
+          var name=""; for(var q=0;q<nlen;q++) name+=String.fromCharCode(u8[p+46+q]);
+          if(name==="xl/worksheets/sheet1.xml"){ so=lho; sc=csize; sm=cmethod; break; }
+          p+=46+nlen+elen+clen;
+        }
+        if(so>=0&&sm===8){
+          var lhnameLen=dv.getUint16(so+26,true), lhextraLen=dv.getUint16(so+28,true), dataOff=so+30+lhnameLen+lhextraLen;
+          var slice=ab.slice(dataOff,dataOff+sc);
+          var ds=new DecompressionStream("deflate-raw");
+          var xml=await new Response(new Blob([slice]).stream().pipeThrough(ds)).text();
+          /* sheet1.xml: <row>走査・A列=シリアル日付・B/C/D=0-1小数 */
+          var rre=/<row[^>]*>([\s\S]*?)<\/row>/g, row, rows=[];
+          while((row=rre.exec(xml))){
+            var cre=/<c r="([A-Z])(\d+)"[^>]*>(?:<v>([^<]*)<\/v>)?/g, cm, cells={};
+            while((cm=cre.exec(row[1]))){ if(cm[3]!==undefined) cells[cm[1]]=cm[3]; }
+            rows.push(cells);
+          }
+          rows.forEach(function(c,i){
+            if(i<6||!c.A||!c.B||!c.C||!c.D) return;
+            var serial=parseFloat(c.A), B=parseFloat(c.B), N=parseFloat(c.C), S=parseFloat(c.D);
+            if(!isFinite(serial)||serial<20000) return;
+            if(!isFinite(B)||!isFinite(N)||!isFinite(S)) return;
+            B*=100; N*=100; S*=100;
+            if(B+N+S<95||B+N+S>105) return;
+            var iso=new Date(Date.UTC(1899,11,30)+serial*864e5).toISOString().slice(0,10);
+            add(iso,B,N,S);
+          });
+        }
+      }
+    }
+  }catch(ex){}
   if(tm&&tm.indexOf(",")>=0){
     String(tm).split(/\r?\n/).forEach(function(l){ var c=l.split(","); if(c.length<4) return;
       var dm=c[0].match(/([0-9]{1,2})-([0-9]{1,2})-([0-9]{2,4})/); if(!dm) return;
@@ -3939,6 +3983,11 @@ async function loadAAII2(){
     pts=pts.filter(function(p){ return p[0]>=cut2; });
   }
   SENTD.aaii2=pts.length>1?{pts:pts,view:{i0:0,i1:0,auto:true,tf:"d"},err:0}:{pts:[],err:1};
+  if(pts.length>52){ try{ localStorage.setItem("ytd_aaii2_cache_v1",JSON.stringify(pts)); }catch(e){} }
+  else if(pts.length<=4){   /* 全経路失敗: 前回成功分があれば復元 */
+    try{ var cc=JSON.parse(localStorage.getItem("ytd_aaii2_cache_v1")||"[]");
+      if(cc&&cc.length>1) SENTD.aaii2={pts:cc,view:{i0:0,i1:0,auto:true,tf:"d"},err:0}; }catch(e){}
+  }
 }
 var LOADED=false;
 function sentEnsure(){
@@ -3947,7 +3996,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-22-1714: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-22-1730: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }

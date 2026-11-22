@@ -243,7 +243,7 @@ body{
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-22-1741";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
+const BUILD="v2026-11-22-1820";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
@@ -3854,7 +3854,7 @@ setInterval(function(){ if(document.hidden) return; try{ wRender(); }catch(e){} 
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-22-1741: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-22-1820: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3891,61 +3891,64 @@ async function sentFetch(u,ms){
   return null;
 }
 async function loadCNN(){
-  var t=null, fg=null, hi={};
-  /* 主系: gmai1234 ミラー（毎日更新・CORSフリー・確実に届く） */
+  function applyCNN(pts,meta){ SENTD.cnn=meta; SENTD.daily.CNNF={pts:mkCC(pts),view:{i0:0,i1:0,auto:true,tf:"d"}}; sentRender(); }
+  /* 1) 本体: CNN graphdata（2年分の日次履歴入り・7段プロキシ）を最優先で取得 */
   try{
-    var tg=await fetch("https://raw.githubusercontent.com/gmai1234/sentiment-dashboard/main/sentiment_data.js");
-    if(tg.ok){
-      var stg=await tg.text(), jg=JSON.parse(stg.slice(stg.indexOf("{"), stg.lastIndexOf("}")+1));
-      fg=jg.fear_greed||null;
-      if(fg&&isFinite(fg.score)&&fg.score>=0&&fg.score<=100){
-        var nowY=Math.floor(fg.score), pw=fg.previous_close, p1w=fg.previous_1_week, p1m=fg.previous_1_month, p1y=fg.previous_1_year;
-        var today=new Date().toISOString().slice(0,10);
-        var ptm=[["previous_1_year",p1y],["previous_1_month",p1m],["previous_1_week",p1w],["previous_close",pw]]
-          .filter(function(x){ return isFinite(x[1])&&x[1]>=0&&x[1]<=100; })
-          .map(function(x,i,arr){ var dd=new Date(Date.now()-(arr.length-i)*7*864e5).toISOString().slice(0,10); return [dd,x[1]]; });
-        ptm.push([today,nowY]);
-        SENTD.cnn={last:nowY,rating:fg.rating||"",asof:String(fg.timestamp||today).slice(0,10),pts:ptm};
-        SENTD.daily.CNNF={pts:mkCC(ptm),view:{i0:0,i1:0,auto:true,tf:"d"}};
-        sentRender();
+    var t=await sentFetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",9000);
+    if(t){ var j=jsonOf(t);
+      if(j&&j.fear_and_greed_historical){
+        var fg=j.fear_and_greed||{}, hi=j.fear_and_greed_historical, pts=[];
+        if(Array.isArray(hi)){ hi.forEach(function(o){ if(!o) return; var v=(typeof o.score==="number")?o.score:parseFloat(o.score), ts2=(typeof o.timestamp==="number")?o.timestamp:parseFloat(o.timestamp);
+          if(isFinite(v)&&v>=0&&v<=100&&isFinite(ts2)) pts.push([new Date(ts2*1000).toISOString().slice(0,10),v]); });
+        } else {
+          Object.keys(hi).sort().forEach(function(k){
+            if(!/^20[0-9]{2}-[0-9]{2}-[0-9]{2}/.test(k)) return;
+            var o=hi[k], v=(o&&typeof o==="object")? o.score : o;
+            v=(typeof v==="number")? v : parseFloat(v);
+            if(isFinite(v)&&v>=0&&v<=100) pts.push([k.slice(0,10),v]); });
+        }
+        if(pts.length>2){
+          var _asof=String(fg.previous_close_date||""); if(_asof.length>10) _asof=_asof.slice(0,10);
+          var lastv=isFinite(fg.score)?fg.score:pts[pts.length-1][1];
+          applyCNN(pts,{last:lastv,rating:fg.rating||"",asof:_asof,pts:pts});
+        }
       }
     }
-  }catch(eg2){}
-  if(SENTD.cnn&&SENTD.cnn.pts&&SENTD.cnn.pts.length>1) return;
-  var t=await sentFetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",9000);
-  if(!t){ SENTD.cnn={err:1}; return; }
-  try{ var j=jsonOf(t); if(!j) throw 0; var fg=j.fear_and_greed||{}, hi=j.fear_and_greed_historical||{};
-    var pts=[];
-    if(Array.isArray(hi)){   /* 列形式: [{score,timestamp(x1000)},...] */
-      hi.forEach(function(o){ if(!o) return; var v=(typeof o.score==="number")?o.score:parseFloat(o.score), ts2=(typeof o.timestamp==="number")?o.timestamp:parseFloat(o.timestamp);
-        if(isFinite(v)&&v>=0&&v<=100&&isFinite(ts2)) pts.push([new Date(ts2*1000).toISOString().slice(0,10),v]); });
-    } else {
-      Object.keys(hi).sort().forEach(function(k){
-        if(!/^20[0-9]{2}-[0-9]{2}-[0-9]{2}/.test(k)) return;   /* 日付キー以外は破棄 */
-        var o=hi[k], v=(o&&typeof o==="object")? o.score : o;
-        v=(typeof v==="number")? v : parseFloat(v);
-        if(isFinite(v)&&v>=0&&v<=100) pts.push([k.slice(0,10),v]);   /* 0..100以外は破棄 */
-      });
-    }
-    var _asof=String(fg.previous_close_date||"");
-    if(_asof.length>10) _asof=_asof.slice(0,10);
-    SENTD.cnn={last:fg.score,rating:fg.rating,asof:_asof,pts:pts};
-    if(pts.length<3){   /* 履歴JSONが薄い場合は日別エンドポイントを週次間引きで2年分収集（最大104リクエスト・途中経過も描画） */
-      var base=new Date(Date.now()), pts2=[];
-      for(var wk=0;wk<104&&pts.length+pts2.length<400;wk++){
+  }catch(e){}
+  /* 2) フォールバック: gmai1234 ミラー（fear_greed の previous_* から週次点を生成・点数が少ない） */
+  if(!(SENTD.cnn&&SENTD.cnn.pts&&SENTD.cnn.pts.length>2)){
+    try{
+      var tg=await fetch("https://raw.githubusercontent.com/gmai1234/sentiment-dashboard/main/sentiment_data.js");
+      if(tg.ok){
+        var stg=await tg.text(), jg=JSON.parse(stg.slice(stg.indexOf("{"), stg.lastIndexOf("}")+1)), fg2=jg.fear_greed||null;
+        if(fg2&&isFinite(fg2.score)&&fg2.score>=0&&fg2.score<=100){
+          var nowY=Math.floor(fg2.score);
+          var ptm=[["previous_1_year",fg2.previous_1_year],["previous_1_month",fg2.previous_1_month],["previous_1_week",fg2.previous_1_week],["previous_close",fg2.previous_close]]
+            .filter(function(x){ return isFinite(x[1])&&x[1]>=0&&x[1]<=100; })
+            .map(function(x,i,arr){ var dd=new Date(Date.now()-(arr.length-i)*7*864e5).toISOString().slice(0,10); return [dd,x[1]]; });
+          ptm.push([new Date().toISOString().slice(0,10),nowY]);
+          applyCNN(ptm,{last:nowY,rating:fg2.rating||"",asof:String(fg2.timestamp||"").slice(0,10),pts:ptm});
+        }
+      }
+    }catch(eg2){}
+  }
+  /* 3) 最終: 日別エンドポイントを週次間引きで収集（最大52リクエスト） */
+  if(!(SENTD.cnn&&SENTD.cnn.pts&&SENTD.cnn.pts.length>2)){
+    try{
+      var base=new Date(Date.now()), pts3=[];
+      for(var wk=0;wk<52;wk++){
         var dd=new Date(base.getTime()-wk*7*864e5), ds2=dd.toISOString().slice(0,10);
         try{
           var rr=await sentFetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata/"+ds2,4000);
           if(rr){ var jj=jsonOf(rr);
-            if(jj&&jj.fear_and_greed&&isFinite(jj.fear_and_greed.score)&&jj.fear_and_greed.score>=0&&jj.fear_and_greed.score<=100){
-              pts2.push([ds2,jj.fear_and_greed.score]); } }
+            if(jj&&jj.fear_and_greed&&isFinite(jj.fear_and_greed.score)&&jj.fear_and_greed.score>=0&&jj.fear_and_greed.score<=100) pts3.push([ds2,jj.fear_and_greed.score]); }
         }catch(e3){}
-        if(wk%8===7) sentRender();
       }
-      pts=pts.concat(pts2).sort(function(a,b){ return a[0]<b[0]?-1:1; });
-    }
-    if(pts.length>1) SENTD.daily.CNNF={pts:mkCC(pts),view:{i0:0,i1:0,auto:true,tf:"d"}};
-  }catch(e){ SENTD.cnn={err:1}; }
+      if(pts3.length>2){ pts3.sort(function(a,b){ return a[0]<b[0]?-1:1; }); applyCNN(pts3,{last:pts3[pts3.length-1][1],rating:"",asof:pts3[pts3.length-1][0],pts:pts3}); }
+    }catch(e4){}
+  }
+  if(!(SENTD.cnn&&SENTD.cnn.pts&&SENTD.cnn.pts.length>2)) SENTD.cnn={err:1};
+  sentRender();
 }
 async function loadAAII(){
   var t=await sentFetch("https://www.aaii.com/sentimentsurvey",9000);
@@ -4102,13 +4105,21 @@ async function loadAAII2(){
   }
 }
 var LOADED=false;
+function sentCacheSave(){ try{ var o={}; ["VIX","PCC","US10Y","CNNF","BBAR"].forEach(function(k){ var d=SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1) o[k]=d.pts; });
+  if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1) o.AAII2=SENTD.aaii2.pts;
+  if(Object.keys(o).length) localStorage.setItem("ytd_sent_cache_v1",JSON.stringify({t:Date.now(),d:o})); }catch(e){} }
+function sentCacheLoad(){ try{ var j=JSON.parse(localStorage.getItem("ytd_sent_cache_v1")||"null"); if(!j||!j.d) return;
+  ["VIX","PCC","US10Y","CNNF","BBAR"].forEach(function(k){ if(!j.d[k]) return; var d=SENTD.daily[k]||(SENTD.daily[k]={pts:[],err:0});
+    if(!(d.pts&&d.pts.length>1)){ d.pts=j.d[k]; d.err=0; if(!d.view) d.view={i0:0,i1:0,auto:true}; } });
+  if(j.d.AAII2&&!(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1)) SENTD.aaii2={pts:j.d.AAII2,view:{i0:0,i1:0,auto:true,tf:"d"},err:0};
+}catch(e){} }
 function sentEnsure(){
-  if(LOADED) return; LOADED=true;
+  if(LOADED) return; LOADED=true; sentCacheLoad(); sentRender();
   Promise.all([loadCNN(),loadAAII(),loadBBAR(),loadDaily(),loadAAII2()].map(function(p){ return p&&p.catch? p.catch(function(){}):p; })).then(function(){ sentRender(); });
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-22-1741: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-22-1820: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4357,8 +4368,7 @@ function sentRender(){
   var cn=SENTD.cnn||{}, cd2=SENTD.daily.CNNF;
   var cnBody;
   if(cd2&&cd2.pts&&cd2.pts.length>1){
-    var tfc=cd2.view.tf||"d";
-    cnBody="<div class=\"tf-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-tf=\"d\" class=\""+(tfc==="d"?"on":"")+"\">日足</button><button type=\"button\" data-tk=\"CNNF\" data-tf=\"w\" class=\""+(tfc==="w"?"on":"")+"\">週足</button><button type=\"button\" data-tk=\"CNNF\" data-tf=\"m\" class=\""+(tfc==="m"?"on":"")+"\">月足</button></div>"
+    cnBody=
         +"<div class=\"cwrap\"><div id=\"ch_CNNF\"></div>"
         +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"zr\">＋</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"auto\" class=\""+(cd2.view.auto?"on":"")+"\">Auto</button></div></div>";
   } else cnBody="<div class=\"wait\">"+(cn.err||(cn.pts&&!cn.pts.length)?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>";
@@ -4407,6 +4417,7 @@ function sentRender(){
   ["VIX","PCC","US10Y","CNNF"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ drawIC(k); attachIC(k); } });
   if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1){ drawIC("AAII2"); attachIC("AAII2"); }
   if(SENTD.daily.BBAR&&SENTD.daily.BBAR.pts&&SENTD.daily.BBAR.pts.length>1){ drawIC("BBAR"); attachIC("BBAR"); }
+  try{ sentCacheSave(); }catch(e8){}
 }
 function sentToggle(){
   var el=document.getElementById("sentview"), w=document.getElementById("wrap");
@@ -4430,6 +4441,11 @@ function sentToggle(){
   }
 }
 document.addEventListener("click",function(e){ var t=e.target&&e.target.closest?e.target.closest("#sentbtn"):null; if(t){ e.preventDefault(); sentToggle(); } });
+setTimeout(function(){ try{ sentEnsure(); }catch(e){} },50);   /* 先行取得: ページ読み込み直後から準備し、タブを開いてから2秒以内に表示 */
+function fixSentSel(){ var sv=document.getElementById("sentview"); if(!sv||sv.style.display!=="block") return;
+  document.querySelectorAll("#pnav a.on,#tabs button.on").forEach(function(x){ x.classList.remove("on"); });
+  var sb=document.getElementById("sentbtn"); if(sb) sb.classList.add("on"); }
+["pnav","tabs"].forEach(function(id){ var el=document.getElementById(id); if(el&&window.MutationObserver) new MutationObserver(function(){ try{ fixSentSel(); }catch(e){} }).observe(el,{subtree:true,attributes:true,attributeFilter:["class"]}); });
 window.addEventListener("hashchange",function(){ var el=document.getElementById("sentview"); if(el&&el.style.display==="block"){ el.style.display="none"; var w=document.getElementById("wrap"); if(w) w.style.display=""; var sb=document.getElementById("sentbtn"); if(sb) sb.classList.remove("on"); var wj=document.getElementById("jump"); if(wj) wj.style.display=""; try{ renderNav(); }catch(e2){} try{ wTabs(); }catch(e3){} } });   /* 他タブクリックでセンチメントを閉じる */
 })();
 

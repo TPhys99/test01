@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-25-1959";
+const BUILD="v2026-11-25-2007";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3745,7 +3745,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-25-1959: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-25-2007: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4072,7 +4072,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-25-1959: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-25-2007: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4155,9 +4155,9 @@ function syncViews(srcKey){
     var src=SENTD.daily[srcKey]||(srcKey==="AAII2"?SENTD.aaii2:null); if(!src||!src.pts||src.pts.length<2) return;
     var vw=src.view, pts=src.pts, n=pts.length;
     if(!(vw.i1>vw.i0)) return;
-    var pd=src.__pdates||(src.pts? src.pts.map(function(p){ return p[0]; }) : null);
-    if(!pd||pd.length<2) return;
-    SENTWIN.d0=pd[Math.min(pd.length-1,vw.i0)]; SENTWIN.d1=pd[Math.min(pd.length-1,vw.i1-1)];   /* 操作チャートの窓の日付で全体を更新 */
+    var parr=src.__pdraw||pts;   /* 操作元の表示配列（パディング含む）から日付を読む */
+    SENTWIN.d0=parr[Math.min(parr.length-1,vw.i0)][0]; SENTWIN.d1=parr[Math.min(parr.length-1,vw.i1-1)][0];
+    var vD=SENTD.daily.VIX; if(vD&&vD.pts&&vD.pts.length>1){ var gMax=vD.pts[vD.pts.length-1][0]; if(SENTWIN.d1>gMax) SENTWIN.d1=gMax; if(SENTWIN.d0>gMax) SENTWIN.d0=gMax; }   /* 操作チャートの窓の日付で全体を更新 */
     window.__SENT_OPSRC=null;   /* ★操作元も共通窓に再マップする（旧viewの取り残しを根絶） */
     ["VIX","PCC","US10Y","CNNF","BBAR"].forEach(function(k){
       var t=SENTD.daily[k]; if(t&&t.pts&&t.pts.length>1) drawIC(k);   /* ★操作元も含め全再描画（操作元が古い窓に取り残されるのを根絶） */
@@ -4177,28 +4177,23 @@ function drawIC(key){
   sentInitWin();
   /* ★根本修正: 空ローソク（NaN）パディングは描画用コピー draw にのみ施し、d.pts は常にクリーン実データ。
      過去Bug: d.ptsへNaNスロットを保存→aggPts/syncViews/ズームが汚染→CNN操作後に空表示（v0206〜v0221の再発源） */
-  var clean=pts.filter(function(p){ return p&&p.length>=2&&(isFinite(+p[1])||isFinite(+p[4])); });
-  if(clean.length>1) pts=clean; else clean=pts.slice();
-  var draw;
+  var draw=pts.filter(function(p){ return p&&p.length>=2&&(isFinite(+p[1])||isFinite(+p[4])); });
+  if(draw.length>1) pts=draw; else draw=pts.slice();
   if(SENTWIN.d0){
     function stepMs(tfv){ return tfv==="m"? 31*864e5 : (tfv==="w"? 7*864e5 : 864e5); }
-    function iso(t){ return new Date(t).toISOString().slice(0,10); }
-    var sm=stepMs(tf);
-    var first=clean[0][0], last=clean[clean.length-1][0];
+    var sm=stepMs(tf), guard=0;
+    var first=draw[0][0], last=draw[draw.length-1][0];
     var t0=new Date(SENTWIN.d0+"T00:00:00Z").getTime(), e0=new Date(first+"T00:00:00Z").getTime();
     var pre=[];
-    while(t0<e0-sm/2&&pre.length<400){ pre.push(iso(t0)); t0+=sm; }
-    if(pre.length&&pre[pre.length-1]!==SENTWIN.d0) pre.push(SENTWIN.d0);   /* 先端をd0に厳密一致 */
+    while(t0<e0-sm/2&&guard++<400){ pre.push(new Date(t0).toISOString().slice(0,10)); t0+=sm; }
+    pre.reverse().forEach(function(t){ draw.unshift([t,NaN,NaN,NaN,NaN]); });
+    if(draw[0][0]!==SENTWIN.d0) draw.unshift([SENTWIN.d0,NaN,NaN,NaN,NaN]);   /* ★先端をd0に厳密一致（±1日ズレ廃絶） */
     var t1=new Date(last+"T00:00:00Z").getTime(), e1=new Date(SENTWIN.d1+"T00:00:00Z").getTime();
-    var post=[];
-    while(t1<e1-sm/2&&post.length<400){ t1+=sm; post.push(iso(t1)); }
-    if(post.length&&post[post.length-1]!==SENTWIN.d1) post.push(SENTWIN.d1);   /* 末尾をd1に厳密一致 */
-    draw=[];
-    pre.reverse().forEach(function(t){ draw.push([t,NaN,NaN,NaN,NaN]); });
-    for(var i2=0;i2<clean.length;i2++) draw.push(clean[i2]);
-    for(var i3=0;i3<post.length;i3++) draw.push([post[i3],NaN,NaN,NaN,NaN]);
-  } else draw=clean.slice();
-  d.__pdates=draw.map(function(p){ return p[0]; });   /* ★日付文字列のみ保持（配列参照のリークを断ち切る） */
+    guard=0;
+    while(t1<e1-sm/2&&guard++<400){ t1+=sm; draw.push([new Date(t1).toISOString().slice(0,10),NaN,NaN,NaN,NaN]); }
+    if(draw[draw.length-1][0]!==SENTWIN.d1) draw.push([SENTWIN.d1,NaN,NaN,NaN,NaN]);   /* ★末尾をd1に厳密一致 */
+  }
+  d.__pdraw=draw;   /* syncViews が操作元の表示範囲日付を正確に読むため保持 */
   var n=draw.length;
   if(SENTWIN.d0){
     if(key===window.__SENT_OPSRC){ /* 操作元は自分の view を使用 */ }
@@ -4264,16 +4259,8 @@ function sentRedrawAll(){   /* 全チャートを共通日付窓（SENTWIN）で
 function sentZoomWin(f){   /* 共通窓を中央基準で拡縮（日付空間・下限10日/上限2年強でクランプ） */
   if(!SENTWIN.d0) return;
   var t0=new Date(SENTWIN.d0+"T00:00:00Z").getTime(), t1=new Date(SENTWIN.d1+"T00:00:00Z").getTime();
-  var mid=(t0+t1)/2, half=Math.max(30*864e5,Math.min(760*864e5,(t1-t0)/2*f));   /* 拡大下限=30日幅（実データを必ず含む） */
+  var mid=(t0+t1)/2, half=Math.max(10*864e5,Math.min(760*864e5,(t1-t0)/2*f));
   SENTWIN.d0=new Date(mid-half).toISOString().slice(0,10); SENTWIN.d1=new Date(mid+half).toISOString().slice(0,10);
-  /* ★窓を実データ範囲内にクランプ（未来日/系列開始前の空白域を排除 — 画像の「飛びラベル」「操作不能」を根絶） */
-  var gMin=null,gMax=null;
-  ["VIX","PCC","US10Y","CNNF","BBAR"].forEach(function(k){ var t=SENTD.daily[k]; if(t&&t.pts&&t.pts.length>1){ var a=t.pts[0][0], b=t.pts[t.pts.length-1][0]; gMin=!gMin||a<gMin?a:gMin; gMax=!gMax||b>gMax?b:gMax; } });
-  if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1){ var a2=SENTD.aaii2.pts[0][0], b2=SENTD.aaii2.pts[SENTD.aaii2.pts.length-1][0]; gMin=!gMin||a2<gMin?a2:gMin; gMax=!gMax||b2>gMax?b2:gMax; }
-  var vD=SENTD.daily.VIX;
-  if(vD&&vD.pts&&vD.pts.length>1){ gMin=vD.pts[0][0]; gMax=vD.pts[vD.pts.length-1][0]; }   /* ★基準は VIX の実データ範囲（ユーザー指定） */
-  if(gMin&&gMax){ if(SENTWIN.d1>gMax) SENTWIN.d1=gMax; if(SENTWIN.d0>gMax) SENTWIN.d0=gMax; if(SENTWIN.d0<gMin) SENTWIN.d0=gMin; if(SENTWIN.d1<gMin) SENTWIN.d1=gMin;
-    if(new Date(SENTWIN.d1)-new Date(SENTWIN.d0)<30*864e5){ var cD=new Date(new Date(SENTWIN.d1).getTime()-15.5*864e5); var d0c=cD.toISOString().slice(0,10); SENTWIN.d0=d0c<gMin?gMin:d0c; } }
   window.__SENT_USER=1; window.__SENT_OPSRC=null;
   sentRedrawAll();
 }
@@ -4287,7 +4274,6 @@ function attachIC(key){
   function nOf(){ var v=d.view; if(!v.__n){ v.__n=((key!=="AAII2")&&d.pts[0]&&d.pts[0].length===5)? aggPts(d.pts,v.tf||"d").length : d.pts.length; } return v.__n; }
   host.style.touchAction="none"; host.style.cursor="crosshair";
   host.addEventListener("pointerdown",function(e){
-    if(!isFinite(e.clientX)||!isFinite(e.clientY)) return;   /* 座標を持たない合成イベントは無視（実ブラウザの pointer は必ず持つ） */
     var r=host.getBoundingClientRect(), sx=(e.clientX-r.left)*860/Math.max(1,r.width), sy=(e.clientY-r.top)*360/Math.max(1,r.height);
     if(sx>=820){ var vv=d.view; sc={v:"y",y:e.clientY,mn:vv.lymn,mx:vv.lymx,mid:(vv.lymn+vv.lymx)/2,half:(vv.lymx-vv.lymn)/2}; try{ host.setPointerCapture(e.pointerId); }catch(e2){} return; }
     if(sy>=300){ sc={v:"x",x:e.clientX}; try{ host.setPointerCapture(e.pointerId); }catch(e2){} return; }
@@ -4300,6 +4286,7 @@ function attachIC(key){
       var n=nOf(), vw=d.view, w0=vw.i1-vw.i0;
       if(sc.v==="y"){
         if(isFinite(sc.mn)&&isFinite(sc.half)&&sc.half>0){
+          var nowY=Date.now(); if(nowY-(sc.__last||0)<40) return; sc.__last=nowY;
           var fY=Math.pow(1.005,sc.y-e.clientY);
           d.view.auto=false; d.view.ymn=sc.mid-sc.half*fY; d.view.ymx=sc.mid+sc.half*fY; drawIC(key); }
         return; }
@@ -4312,7 +4299,6 @@ function attachIC(key){
     if(!drag.d0){ drag=null; return; }
     var span=new Date(drag.d1+"T00:00:00Z").getTime()-new Date(drag.d0+"T00:00:00Z").getTime();
     var dd=(drag.x-e.clientX)/drag.pw*span;   /* ★パン移動量を日付で計算（全チャート同一窓を平行移動） */
-    if(!isFinite(dd)){ drag=null; return; }
     SENTWIN.d0=new Date(new Date(drag.d0+"T00:00:00Z").getTime()+dd).toISOString().slice(0,10);
     SENTWIN.d1=new Date(new Date(drag.d1+"T00:00:00Z").getTime()+dd).toISOString().slice(0,10);
     window.__SENT_USER=1; window.__SENT_OPSRC=null;

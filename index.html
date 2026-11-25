@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-25-2244";
+const BUILD="v2026-11-25-2320";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -1298,7 +1298,7 @@ async function fetchIdxDirect(tk){
 }
 /* ===== プット/コールレシオ（PCC）=====
    主系：thetrading.tools のまとめJSON（CORS可・約130KB・指名買いで1リクエスト）
-         total / equity / index と SPY価格、約2年分の日次。
+         total / equity / index と SPY価格、約3年分の日次。
    従系：CBOEの日次統計ページ（CORS不可のためプロキシ経由・1日1リクエスト）。
    取得した日次値は localStorage に永久保存し、日付が揃った分だけで月次を再構成する。 */
 const PCC_KEY="ytd_pcc_v1";
@@ -1325,7 +1325,7 @@ function pccBuild(){
   if(lastKey>ASOF) ASOF=lastKey;
   return true;
 }
-/* 主系：1リクエストで約2年分 */
+/* 主系：1リクエストで約3年分 */
 async function fetchPccBulk(){
   const u="https://www.thetrading.tools/data/cboe_putcall/put_call_ratio.json";
   let r=await fetchDirect(u,2500);
@@ -3745,7 +3745,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-25-2244: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-25-2320: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3898,7 +3898,7 @@ async function loadAAII(){
 }
 async function loadBBAR(){
   async function mo(tk){
-    var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=2y&interval=1mo",8000);
+    var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=3y&interval=1mo",8000);
     if(!t) return {};
     try{ var j=jsonOf(t); if(!j) return {}; var res=j.chart&&j.chart.result&&j.chart.result[0]; if(!res) return {};
       var q=res.indicators.quote[0].close||[],o={};
@@ -3908,10 +3908,10 @@ async function loadBBAR(){
   }
   var u=await mo("UPRO"),s=await mo("SPXS");
   var pts=Object.keys(u).filter(function(k){ return s[k]&&s[k]>0; }).sort().map(function(k){ return [k,+(u[k]/s[k]).toFixed(2)]; });
-  if(pts.length<24) pts=[];   /* 月次が2年分ない場合は日次2年から生成（2点表示を防ぐ） */
+  if(pts.length<24) pts=[];   /* 月次が3年分ない場合は日次2年から生成（2点表示を防ぐ） */
   if(pts.length<2){   /* フォールバック: Yahoo 日次2年から週次比 */
     async function da(tk){
-      var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=2y&interval=1d",9000);
+      var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=3y&interval=1d",9000);
       if(!t) return [];
       try{ var j=jsonOf(t); if(!j) return []; var r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, o=[];
         for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var d=new Date(ts[i]*1000); o.push([d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()),q[i]]); } }
@@ -3942,7 +3942,7 @@ async function loadAAII2(){
       add(yy+"-"+String(+dm[1]).padStart(2,"0")+"-"+String(+dm[2]).padStart(2,"0"),B,N,S);
     });
   }
-  /* 3) GitHubミラー（psinopoli/AAII-Sentiment・過去2年分の補完用） */
+  /* 3) GitHubミラー（psinopoli/AAII-Sentiment・過去3年分の補完用） */
   var tm=await sentFetch("https://raw.githubusercontent.com/psinopoli/AAII-Sentiment/main/AAII_SENTIMENT_CSV.csv",6000);
   if(!tm){ tm=await sentFetch("https://cdn.jsdelivr.net/gh/psinopoli/AAII-Sentiment@main/AAII_SENTIMENT_CSV.csv",6000); }
   if(!tm){ tm=await sentFetch("https://www.aaii.com/files/surveys/sentiment.csv",6000); }
@@ -4041,7 +4041,7 @@ async function loadAAII2(){
   }
   var pts=Object.keys(out).sort().map(function(k){ return out[k]; });
   /* D: 直近2年でフィルタ。ただしソースが古い場合（ミラー停止等）は
-     「最新データ時点から過去2年」に切り替え、4本しか残らない事故を防ぐ */
+     「最新データ時点から過去3年」に切り替え、4本しか残らない事故を防ぐ */
   var cut=new Date(Date.now()-2*366*864e5).toISOString().slice(0,10);
   var f1=pts.filter(function(p){ return p[0]>=cut; });
   if(f1.length>=100){ pts=f1; }
@@ -4072,19 +4072,19 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-25-2244: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-25-2320: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
-  try{ var rr=await fetchDirect("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",4000);
-    var t=rr&&rr.body; if(!t){ var t2=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=2y&interval=1d",9000); t=t2; }
+  try{ var rr=await fetchDirect("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=3y&interval=1d",4000);
+    var t=rr&&rr.body; if(!t){ var t2=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^VIX")+"?range=3y&interval=1d",9000); t=t2; }
     if(t){ var j=jsonOf(t); if(!j) throw 0; var r=j.chart.result[0], Q=r.indicators.quote[0], q=Q.close, ts=r.timestamp, pts=[];
       for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var dd=new Date(ts[i]*1000), o=Q.open[i],h=Q.high[i],l=Q.low[i];
         pts.push([dd.getFullYear()+"-"+pad2(dd.getMonth()+1)+"-"+pad2(dd.getDate()),+(o!=null?o:q[i]),+(h!=null?h:q[i]),+(l!=null?l:q[i]),+q[i]]); } }
       if(pts.length>1){ mk("VIX").pts=pts; } else mk("VIX").err=1; } else mk("VIX").err=1;
   }catch(e){ mk("VIX").err=1; }
   try{   /* 主系: Yahoo ^TNX（10年債利回り・日次OHLC） */
-    var tt=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^TNX")+"?range=2y&interval=1d",7000);
+    var tt=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent("^TNX")+"?range=3y&interval=1d",7000);
     if(tt){ var jT=jsonOf(tt);
       if(jT&&jT.chart&&jT.chart.result&&jT.chart.result[0]){
         var rT=jT.chart.result[0], QT=rT.indicators.quote[0], qT=QT.close, tsT=rT.timestamp, ptsT=[];
@@ -4261,7 +4261,7 @@ function sentRedrawAll(){   /* 全チャートを共通日付窓（SENTWIN）で
 function sentZoomWin(f){   /* 共通窓を中央基準で拡縮（日付空間・下限10日/上限2年強でクランプ） */
   if(!SENTWIN.d0) return;
   var t0=new Date(SENTWIN.d0+"T00:00:00Z").getTime(), t1=new Date(SENTWIN.d1+"T00:00:00Z").getTime();
-  var mid=(t0+t1)/2, half=Math.max(10*864e5,Math.min(760*864e5,(t1-t0)/2*f));
+  var mid=(t0+t1)/2, half=Math.max(10*864e5,Math.min(1130*864e5,(t1-t0)/2*f));
   SENTWIN.d0=new Date(mid-half).toISOString().slice(0,10); SENTWIN.d1=new Date(mid+half).toISOString().slice(0,10);
   window.__SENT_USER=1; window.__SENT_OPSRC=null;
   sentRedrawAll();
@@ -4377,8 +4377,8 @@ function sentRender(){
           +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\""+key+"\" data-a=\"zl\">−</button>"
           +"<button type=\"button\" data-tk=\""+key+"\" data-a=\"zr\">＋</button>"
           +"</div></div>";
-    } else body="<div class=\"wait\">"+(d&&d.err?"取得できません":"取得中…（過去2年分の日次データ）")+"</div>";
-    out+=sect(nm,lv,asof+"／日次・2年分（表示は直近6か月）",body);
+    } else body="<div class=\"wait\">"+(d&&d.err?"取得できません":"取得中…（過去3年分の日次データ）")+"</div>";
+    out+=sect(nm,lv,asof+"／日次・3年分（表示は直近6か月）",body);
   });
   var cn=SENTD.cnn||{}, cd2=SENTD.daily.CNNF;
   var cnBody;
@@ -4386,7 +4386,7 @@ function sentRender(){
     cnBody="<div class=\"cwrap\"><div id=\"ch_CNNF\"></div>"
         +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"zr\">＋</button></div></div>";
   } else cnBody="<div class=\"wait\">"+(cn.err||(cn.pts&&!cn.pts.length)?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>";
-  out+=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・2年分（表示は直近6か月）",cnBody);
+  out+=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・3年分（表示は直近6か月）",cnBody);
   var aa=SENTD.aaii||{};
   var aaBody="", aaLV="", aaAS="";
   if(aa.weeks&&aa.weeks.length){
@@ -4424,9 +4424,9 @@ function sentRender(){
     aa2Body="<div class=\"aleg\" style=\"margin-bottom:6px\"><span><i class=\"abull\"></i>Bullish 強気</span><span><i class=\"aneu\"></i>Neutral 中立</span><span><i class=\"abear\"></i>Bearish 弱気</span></div>"
         +"<div class=\"cwrap\"><div id=\"ch_AAII2\"></div>"
         +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"AAII2\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"AAII2\" data-a=\"zr\">＋</button></div></div>";
-  } else aa2Body="<div class=\"wait\">"+(aa2&&aa2.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（過去2年分）")+"</div>";
+  } else aa2Body="<div class=\"wait\">"+(aa2&&aa2.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（過去3年分）")+"</div>";
   out+=sect("AAIIセンチメント②","100%積み上げ（Bullish/Neutral/Bearish）・取得範囲 "+(aa2&&aa2.pts.length>1? aa2.pts[0][0]+"〜"+aa2.pts[aa2.pts.length-1][0]:"-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
-  out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）・日次・2年分（表示は直近6か月）",bbBody);
+  out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）・日次・3年分（表示は直近6か月）",bbBody);
   el.innerHTML=out;
   ["VIX","PCC","US10Y","CNNF"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ try{ drawIC(k); attachIC(k); }catch(eD){ window.__DRAWERR=window.__DRAWERR||{}; window.__DRAWERR[k]=eD.message; } } });
   if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1){ drawIC("AAII2"); attachIC("AAII2"); }
@@ -4446,7 +4446,7 @@ function sentToggle(){
     var sb1=document.getElementById("sentbtn"); if(sb1) sb1.classList.add("on");   /* センチメントタブ自身を選択色に */
     var wj=document.getElementById("jump"); if(wj) wj.style.display="none";   /* カテゴリ列はセンチメントには無関係 */
     try{ window.scrollTo(0,0); }catch(e){}
-    el.innerHTML="<h2>市場センチメント</h2><div class=\"sub\">各指標の<b>実数値</b>の推移（乖離率ではありません）。金利等の他タブと独立しています。VIX／PCC／米10年債は<b>過去2年分の日次</b>（初期表示は直近6か月）。グラフ内<b>ドラッグ＝左右移動</b>、<b>ホイール／＋−ボタン＝拡大縮小</b>、<b>Auto＝表示範囲の縦軸フィット（最大+10%／最小-10%）</b>。"
+    el.innerHTML="<h2>市場センチメント</h2><div class=\"sub\">各指標の<b>実数値</b>の推移（乖離率ではありません）。金利等の他タブと独立しています。VIX／PCC／米10年債は<b>過去3年分の日次</b>（初期表示は直近6か月）。グラフ内<b>ドラッグ＝左右移動</b>、<b>ホイール／＋−ボタン＝拡大縮小</b>、<b>Auto＝表示範囲の縦軸フィット（最大+10%／最小-10%）</b>。"
       +"股ブルベア指数は UPRO（S&P500ブル3倍）÷SPXS（S&P500ベア3倍）の比＝代理指標。股AAIIはこの端末での蓄積履歴。股出典： CBOE／CNN／AAII／Yahoo Finance（公開データ）。</div>"
       +"<span class=\"sb\" id=\"sentback\">← 戻る</span><div id=\"sentbody\"><div class=\"wait\">取得中…</div></div>";
     var bk=document.getElementById("sentback"); bk.addEventListener("click",sentToggle);

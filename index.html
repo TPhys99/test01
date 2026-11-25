@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-26-0451";
+const BUILD="v2026-11-26-0500";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3745,7 +3745,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-26-0451: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-26-0500: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -3821,8 +3821,10 @@ async function loadCNN(){
       if(!o||typeof o!=="object"||d>14) return;   /* ★深さ14（base=10 は深さ8で履歴配列に届いていなかった） */
       if(Array.isArray(o)){ for(var i=0;i<o.length;i++) walk(o[i],d+1,parKey); return; }
       var sc=(typeof o.score==="number")?o.score:(typeof o.score==="string"&&isFinite(parseFloat(o.score))?parseFloat(o.score):null);
-      /* ★実応答確定（2026-11-26・実機200応答）: 履歴は fear_and_greed_historical.data = [{x:<ms>,y:<score>,rating}, ...] */
-      if(sc==null&&typeof o.y==="number"&&isFinite(o.x)&&o.x>1e12){ dp.push([new Date(o.x).toISOString().slice(0,10),o.y]); return; }
+      /* ★実応答確定（2026-11-26・実機200応答）: 履歴は fear_and_greed_historical.data = [{x:<ms>,y:<score>,rating}, ...]
+         ★ junk_bond_demand / market_momentum 等の「別指標」も同じ {x,y} 形を持つため、
+           親キーが fear_and_greed_historical.data 配列内の点のみ収集する（それ以外は無視・-7.79 等の異常値を根絶） */
+      if(sc==null&&typeof o.y==="number"&&isFinite(o.x)&&o.x>1e12&&walk.__infear){ dp.push([new Date(o.x).toISOString().slice(0,10),o.y]); return; }   /* ★fear_and_greed_historical 配下の {x,y} 点のみ（他指標の負値・爆発値を除外） */
       if(sc==null&&parKey&&/^20[0-9]{2}-[0-9]{2}-[0-9]{2}/.test(parKey)&&Object.keys(o).length<12){
         var v2=(typeof o.score!=="undefined")?+o.score:+parKey? NaN : NaN;
         v2=(typeof o.score!=="undefined")?+o.score:(typeof o==="number"?o:NaN);
@@ -3835,9 +3837,12 @@ async function loadCNN(){
         if(isFinite(ts)&&ts>1e12) iso=new Date(ts).toISOString().slice(0,10);
         else if(ds&&/^20[0-9]{2}-[0-9]{2}-[0-9]{2}/.test(ds)) iso=ds.slice(0,10);
         else if(parKey&&/^20[0-9]{2}-[0-9]{2}-[0-9]{2}/.test(parKey)) iso=parKey.slice(0,10);   /* ★親キー=日付 */
-        if(iso) dp.push([iso,sc]);
+        if(iso&&sc>=0&&sc<=100) dp.push([iso,sc]);
       }
-      Object.keys(o).forEach(function(k){ walk(o[k],d+1,k); });
+      Object.keys(o).forEach(function(k){
+        if(k==="fear_and_greed_historical"){ walk.__infear=1; walk(o[k],d+1,k); walk.__infear=0; }   /* ★この配下のみ収集 */
+        else walk(o[k],d+1,k);
+      });
     })(j,0,null);
     var seen0={}; dp.forEach(function(p){ seen0[p[0]]=1; });
     var hi=j.fear_and_greed_historical||j.fear_and_greed_historicalData||j.fear_and_greed_history||j.historical||null;   /* ★応答キー名の揺れに対応 */
@@ -4127,7 +4132,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-26-0451: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-26-0500: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4314,7 +4319,7 @@ function drawIC(key){
       g+="<rect x=\""+(x-bw2/2).toFixed(1)+"\" y=\""+yTop.toFixed(1)+"\" width=\""+bw2.toFixed(1)+"\" height=\""+Math.max(1,yN2-yTop).toFixed(1)+"\" fill=\"#e05252\"/>";
     });
   } else {
-    var flat=vis.length>0&&vis.every(function(p){ return isFinite(p[4])&&p[1]===p[2]&&p[2]===p[3]&&p[3]===p[4]; });
+    var flat=vis.length>0&&(vis.every(function(p){ return isFinite(p[4])&&p[1]===p[2]&&p[2]===p[3]&&p[3]===p[4]; })||key==="CNNF"||key==="BBAR");   /* ★CNN・ブルベアは常にライン＋×印（1点でも非同値が混ざるとローソクに落ちていた） */
     var pts2=vis.map(function(p,i){ return [X(i),Y(p[4]),p]; }).filter(function(q){ return isFinite(q[1]); });
     if(flat){   /* ★CNN等の「一意の数字」はローソクでなくラインで結ぶ（実機指摘のバーチャート化を解消） */
       g+="<polyline points=\""+pts2.map(function(q){ return q[0].toFixed(1)+","+q[1].toFixed(1); }).join(" ")+"\" fill=\"none\" stroke=\"#4aa3ff\" stroke-width=\"1.8\"/>";

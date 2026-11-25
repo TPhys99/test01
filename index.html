@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-25-2320";
+const BUILD="v2026-11-26-0024";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3745,7 +3745,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(620px,1fr));gap:12px}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-25-2320: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-26-0024: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4072,7 +4072,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-25-2320: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-26-0024: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4248,7 +4248,9 @@ function drawIC(key){
       g+="<rect x=\""+(x-bw/2).toFixed(1)+"\" y=\""+yT.toFixed(1)+"\" width=\""+bw.toFixed(1)+"\" height=\""+bh.toFixed(1)+"\" fill=\""+col+"\" stroke=\"none\"/>";
     });
   }
+  if(key==="VIX"&&isFinite(mx)&&mx>20){ var yB20=Y(20); if(yB20<T+ph){ g="<rect x=\""+L+"\" y=\""+Math.max(T,yB20).toFixed(1)+"\" width=\""+pw+"\" height=\""+Math.max(0,(T+ph)-Math.max(T,yB20)).toFixed(1)+"\" fill=\"#fff9d6\" stroke=\"none\"/>"+g; } }
   g+=grid;   /* メモリ（白線）を最上位に重ねて描画 */
+
   g+="<rect class=\"vs\" data-tk=\""+key+"\" x=\""+(W-R)+"\" y=\""+T+"\" width=\"14\" height=\""+ph+"\" fill=\"transparent\" style=\"cursor:ns-resize\"/>";
   g+="<rect class=\"hs\" data-tk=\""+key+"\" x=\""+L+"\" y=\""+(H-B+8)+"\" width=\""+pw+"\" height=\"26\" fill=\"transparent\" style=\"cursor:ew-resize\"/>";
   host.innerHTML="<svg viewBox=\"0 0 "+W+" "+H+"\" role=\"img\">"+g+"</svg>";
@@ -4364,6 +4366,29 @@ function sect(t,lv,asof,body){
 function sentRender(){
   var el=document.getElementById("sentbody"); if(!el) return;
   var out="";
+  var cn=SENTD.cnn||{}, cd2=SENTD.daily.CNNF;
+  var cnBody;
+  if(cd2&&cd2.pts&&cd2.pts.length>1){
+    cnBody="<div class=\"cwrap\"><div id=\"ch_CNNF\"></div>"
+        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"zr\">＋</button></div></div>";
+  } else cnBody="<div class=\"wait\">"+(cn.err||(cn.pts&&!cn.pts.length)?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>";
+  out+=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・3年分（表示は直近6か月）",cnBody);
+  var bb=SENTD.bbar||{}, bd=SENTD.daily.BBAR;
+  var bbBody;
+  if(bd&&bd.pts&&bd.pts.length>1){
+    var tfb=bd.view.tf||"d";
+    bbBody="<div class=\"tf-ctl\"><button type=\"button\" data-tk=\"BBAR\" data-tf=\"d\" class=\""+(tfb==="d"?"on":"")+"\">日足</button><button type=\"button\" data-tk=\"BBAR\" data-tf=\"w\" class=\""+(tfb==="w"?"on":"")+"\">週足</button><button type=\"button\" data-tk=\"BBAR\" data-tf=\"m\" class=\""+(tfb==="m"?"on":"")+"\">月足</button></div>"
+        +"<div class=\"cwrap\"><div id=\"ch_BBAR\"></div>"
+        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"BBAR\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"BBAR\" data-a=\"zr\">＋</button></div></div>";
+  } else bbBody="<div class=\"wait\">"+(bb.err?"取得できません <span class=\"sb\" data-retry=\"bbar\">再試行</span>":"取得中…")+"</div>";
+  var aa2=SENTD.aaii2, aa2Body;
+  if(aa2&&aa2.pts&&aa2.pts.length>1){
+    aa2Body="<div class=\"aleg\" style=\"margin-bottom:6px\"><span><i class=\"abull\"></i>Bullish 強気</span><span><i class=\"aneu\"></i>Neutral 中立</span><span><i class=\"abear\"></i>Bearish 弱気</span></div>"
+        +"<div class=\"cwrap\"><div id=\"ch_AAII2\"></div>"
+        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"AAII2\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"AAII2\" data-a=\"zr\">＋</button></div></div>";
+  } else aa2Body="<div class=\"wait\">"+(aa2&&aa2.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（過去3年分）")+"</div>";
+  out+=sect("AAIIセンチメント②","100%積み上げ（Bullish/Neutral/Bearish）・取得範囲 "+(aa2&&aa2.pts.length>1? aa2.pts[0][0]+"〜"+aa2.pts[aa2.pts.length-1][0]:"-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
+  out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）・日次・3年分（表示は直近6か月）",bbBody);
   ["VIX","PCC","US10Y"].forEach(function(key){
     var nm=(key==="VIX")?"VIX（恐怖指数）":(key==="PCC"?"プット/コールレシオ":"米国10年債利回り");
     var tk=(key==="VIX")?"^VIX":key, c=CDATA[tk]||{}, d=SENTD.daily[key];
@@ -4380,13 +4405,6 @@ function sentRender(){
     } else body="<div class=\"wait\">"+(d&&d.err?"取得できません":"取得中…（過去3年分の日次データ）")+"</div>";
     out+=sect(nm,lv,asof+"／日次・3年分（表示は直近6か月）",body);
   });
-  var cn=SENTD.cnn||{}, cd2=SENTD.daily.CNNF;
-  var cnBody;
-  if(cd2&&cd2.pts&&cd2.pts.length>1){
-    cnBody="<div class=\"cwrap\"><div id=\"ch_CNNF\"></div>"
-        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"zr\">＋</button></div></div>";
-  } else cnBody="<div class=\"wait\">"+(cn.err||(cn.pts&&!cn.pts.length)?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>";
-  out+=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・3年分（表示は直近6か月）",cnBody);
   var aa=SENTD.aaii||{};
   var aaBody="", aaLV="", aaAS="";
   if(aa.weeks&&aa.weeks.length){
@@ -4411,22 +4429,6 @@ function sentRender(){
     aaBody="<div class=\"wait\">"+(aa.err?"取得できません（AAIIのHPがボット保護中。蓄積データ・ミラーから②を表示） <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（AAIIは週1回更新。取得した週データを蓄積します）")+"</div>";
   }
   out+=sect("AAIIセンチメント①",aaLV,aaAS,aaBody);
-  var bb=SENTD.bbar||{}, bd=SENTD.daily.BBAR;
-  var bbBody;
-  if(bd&&bd.pts&&bd.pts.length>1){
-    var tfb=bd.view.tf||"d";
-    bbBody="<div class=\"tf-ctl\"><button type=\"button\" data-tk=\"BBAR\" data-tf=\"d\" class=\""+(tfb==="d"?"on":"")+"\">日足</button><button type=\"button\" data-tk=\"BBAR\" data-tf=\"w\" class=\""+(tfb==="w"?"on":"")+"\">週足</button><button type=\"button\" data-tk=\"BBAR\" data-tf=\"m\" class=\""+(tfb==="m"?"on":"")+"\">月足</button></div>"
-        +"<div class=\"cwrap\"><div id=\"ch_BBAR\"></div>"
-        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"BBAR\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"BBAR\" data-a=\"zr\">＋</button></div></div>";
-  } else bbBody="<div class=\"wait\">"+(bb.err?"取得できません <span class=\"sb\" data-retry=\"bbar\">再試行</span>":"取得中…")+"</div>";
-  var aa2=SENTD.aaii2, aa2Body;
-  if(aa2&&aa2.pts&&aa2.pts.length>1){
-    aa2Body="<div class=\"aleg\" style=\"margin-bottom:6px\"><span><i class=\"abull\"></i>Bullish 強気</span><span><i class=\"aneu\"></i>Neutral 中立</span><span><i class=\"abear\"></i>Bearish 弱気</span></div>"
-        +"<div class=\"cwrap\"><div id=\"ch_AAII2\"></div>"
-        +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"AAII2\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"AAII2\" data-a=\"zr\">＋</button></div></div>";
-  } else aa2Body="<div class=\"wait\">"+(aa2&&aa2.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（過去3年分）")+"</div>";
-  out+=sect("AAIIセンチメント②","100%積み上げ（Bullish/Neutral/Bearish）・取得範囲 "+(aa2&&aa2.pts.length>1? aa2.pts[0][0]+"〜"+aa2.pts[aa2.pts.length-1][0]:"-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
-  out+=sect("ブルベア指数（UPRO÷SPXS）",(typeof bb.last==="number"?fmtV(bb.last):(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／レバレッジETF比（代理指標）・日次・3年分（表示は直近6か月）",bbBody);
   el.innerHTML=out;
   ["VIX","PCC","US10Y","CNNF"].forEach(function(k){ var d=SENTD.daily&&SENTD.daily[k]; if(d&&d.pts&&d.pts.length>1){ try{ drawIC(k); attachIC(k); }catch(eD){ window.__DRAWERR=window.__DRAWERR||{}; window.__DRAWERR[k]=eD.message; } } });
   if(SENTD.aaii2&&SENTD.aaii2.pts&&SENTD.aaii2.pts.length>1){ drawIC("AAII2"); attachIC("AAII2"); }

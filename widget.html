@@ -243,7 +243,7 @@ body{
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-26-0252";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
+const BUILD="v2026-11-26-0308";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
@@ -3858,7 +3858,7 @@ setInterval(function(){ if(document.hidden) return; try{ wRender(); }catch(e){} 
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-26-0252: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-26-0308: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4020,20 +4020,19 @@ async function loadBBAR(){
       return o;
     }catch(e){ return {}; }
   }
-  var u=await mo("UPRO"),s=await mo("SPXS");
-  var pts=Object.keys(u).filter(function(k){ return s[k]&&s[k]>0; }).sort().map(function(k){ return [k,+(u[k]/s[k]).toFixed(2)]; });
-  if(pts.length<24) pts=[];   /* 月次が3年分ない場合は日次2年から生成（2点表示を防ぐ） */
-  if(pts.length<2){   /* フォールバック: Yahoo 日次2年から週次比 */
-    async function da(tk){
-      var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=3y&interval=1d",9000);
-      if(!t) return [];
-      try{ var j=jsonOf(t); if(!j) return []; var r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, o=[];
-        for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var d=new Date(ts[i]*1000); o.push([d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()),q[i]]); } }
-        return o; }catch(e){ return []; }
-    }
-    var du=await da("UPRO"), ds=await da("SPXS"), m={};
-    ds.forEach(function(p){ m[p[0]]=p[1]; });
-    pts=du.filter(function(p){ return m[p[0]]>0; }).map(function(p){ return [p[0],+(p[1]/m[p[0]]).toFixed(4)]; });
+  async function da(tk){   /* ★日次を主経路に（毎日のブルベア比を算出） */
+    var t=await sentFetch("https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(tk)+"?range=3y&interval=1d",9000);
+    if(!t) return [];
+    try{ var j=jsonOf(t); if(!j) return []; var r=j.chart.result[0], q=r.indicators.quote[0].close, ts=r.timestamp, o=[];
+      for(var i=0;i<ts.length;i++){ if(q[i]!=null){ var d=new Date(ts[i]*1000); o.push([d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()),q[i]]); } }
+      return o; }catch(e){ return []; }
+  }
+  var du=await da("UPRO"), ds=await da("SPXS"), m={};
+  ds.forEach(function(p){ m[p[0]]=p[1]; });
+  var pts=du.filter(function(p){ return m[p[0]]>0; }).map(function(p){ return [p[0],+(p[1]/m[p[0]]).toFixed(4)]; });
+  if(pts.length<24){   /* フォールバック: 日次が取れない場合のみ月次3yから生成 */
+    var u=await mo("UPRO"), sm=await mo("SPXS");
+    pts=Object.keys(u).filter(function(k){ return sm[k]&&sm[k]>0; }).sort().map(function(k){ return [k,+(u[k]/sm[k]).toFixed(2)]; });
   }
   SENTD.bbar=pts.length?{pts:pts,last:pts[pts.length-1][1],asof:pts[pts.length-1][0]}:{err:1};
   if(pts.length>1) SENTD.daily.BBAR={pts:mkCC(pts),view:{i0:0,i1:0,auto:true,tf:"d"}};
@@ -4186,7 +4185,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-26-0252: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-26-0308: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4344,15 +4343,19 @@ function drawIC(key){
     if(p[0].slice(8)==="01") cands.push({i:i,p:0});          /* 毎月1日（最優先） */
     else if(p[0].slice(8)==="15") cands.push({i:i,p:1}); });  /* 毎月15日 */
   if(vis.length>0) cands.push({i:vis.length-1,p:2});          /* 本日（優先度最低） */
-  var minSep=58, accX=[];
-  [0,1,2].forEach(function(pr){ cands.forEach(function(c){ if(c.p!==pr) return;
-    var xx=X(c.i);
-    for(var q=0;q<accX.length;q++){ if(Math.abs(accX[q]-xx)<minSep) return; }   /* ★重なる場合は優先度の高い方だけ残す */
-    accX.push(xx);
-    var gp=(vis[c.i]||[""])[0]; if(!gp) return;
+  var maxN=Math.max(2,Math.floor((W-R-L)/72)), used={}, ticks=[];
+  for(var k=0;k<maxN;k++){   /* ★等間隔の目標位置に最も近い候補へスナップ（1日＞15日＞本日） */
+    var target=L+(W-R-L)*(maxN>1?k/(maxN-1):0.5), best=null, bd=1e9;
+    cands.forEach(function(c){ if(used[c.i]) return; var dx=Math.abs(X(c.i)-target);
+      if(dx<bd||(dx===bd&&best&&c.p<best.p)){ bd=dx; best=c; } });
+    if(best&&bd<(W-R-L)/maxN*1.5){ used[best.i]=1; ticks.push(best.i); } }
+  ticks.sort(function(a,b){ return a-b; });
+  ticks.forEach(function(gi){
+    var xx=X(gi), gp=(vis[gi]||[""])[0];
+    if(!gp) return;
     g+="<line x1=\""+xx.toFixed(1)+"\" x2=\""+xx.toFixed(1)+"\" y1=\""+(T+ph).toFixed(1)+"\" y2=\""+(T+ph+5).toFixed(1)+"\" stroke=\"#9aa4b2\" stroke-opacity=\"0.7\" stroke-width=\"1\"/>";   /* ★Tick目盛線 */
     var xx2=Math.max(L+28,Math.min(W-R-28,xx));   /* 端のラベルを軸内側にクランプ（見切れ防止） */
-    g+="<text x=\""+xx2.toFixed(1)+"\" y=\""+(H-24)+"\" text-anchor=\"middle\" fill=\"#9aa4b2\" font-size=\"11\">"+esc0(gp.slice(2).replace(/-/g,"/"))+"</text>"; }); });   /* ★YY/MM/DD 表示 */
+    g+="<text x=\""+xx2.toFixed(1)+"\" y=\""+(H-24)+"\" text-anchor=\"middle\" fill=\"#9aa4b2\" font-size=\"11\">"+esc0(gp.slice(2).replace(/-/g,"/"))+"</text>"; });   /* ★YY/MM/DD 表示 */
   if(c2){
     var bw2=Math.max(2,Math.min(16,pw/Math.max(vis.length,1)*0.7));
     vis.forEach(function(p,i){
@@ -4377,7 +4380,7 @@ function drawIC(key){
   if(key==="VIX"&&!c2){ zones=[{from:20,to:null,fill:"rgba(255,235,0,0.2)"}]; }
   else if(key==="PCC"&&!c2){ zones=[{from:1.0,to:null,fill:"rgba(255,235,0,0.2)"}]; }
   else if(key==="US10Y"&&!c2){ zones=[{from:5.0,to:null,fill:"rgba(255,235,0,0.2)",lab:"5.0"}]; }   /* ★5%以上=黄 透過率80% */
-  else if(key==="BBAR"&&!c2){ zones=[{from:null,to:1.0,fill:"rgba(255,235,0,0.2)"},{from:2.5,to:3.0,fill:"rgba(224,82,82,0.1)",lab:"2.5"},{from:3.0,to:null,fill:"rgba(224,82,82,0.2)",lab:"3.0"}]; }
+  else if(key==="BBAR"&&!c2){ zones=[{from:null,to:1.0,fill:"rgba(255,235,0,0.2)",lab:"1.0"},{from:1.0,to:1.5,fill:"rgba(150,150,150,0.1)",lab:"1.5"},{from:1.5,to:3.0,fill:"rgba(224,82,82,0.1)",lab:"3.0"},{from:3.0,to:null,fill:"rgba(224,82,82,0.2)"}]; }
   else if(key==="CNNF"&&!c2){ zones=[
     {from:0,to:25,fill:"rgba(255,235,0,0.2)",lab:"Extreme Fear"},
     {from:25,to:45,fill:"rgba(255,235,0,0.1)",lab:"Fear"},

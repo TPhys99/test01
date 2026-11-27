@@ -253,7 +253,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-27-1137";
+const BUILD="v2026-11-27-2245";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3762,7 +3762,7 @@ try{
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}\n@media(max-width:900px){\n#sentbody{grid-template-columns:1fr}\n#sentview{max-width:100vw;overflow-x:hidden}\n#sentview .sc{max-width:100%;min-width:0;overflow:hidden}\n#sentview svg{max-width:100%;height:auto}\n.acard{max-width:100%;overflow-x:auto}\n.arow{max-width:100%}\n.wrap{grid-template-columns:1fr!important}\nhtml,body{max-width:100vw;overflow-x:hidden}\n}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-27-1137: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-27-2245: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4074,6 +4074,9 @@ async function aaiiPrimeLatest(add){
   if(buf){ await new Promise(function(r){ loadXLSXCb(r); }); n+=aaiiParseXlsBuf(buf,add); aaLog("aaii-xls",n>0,"rows="+n); }
   else aaLog("aaii-xls",false,"unreachable");
   if(n>0) return n;
+  try{ var wb2=await fetch("https://web.archive.org/web/2026id_/https://www.aaii.com/files/surveys/sentiment.xls");
+    if(wb2&&wb2.ok){ var bb2=await wb2.arrayBuffer(); if(bb2&&bb2.byteLength>50000){ await new Promise(function(r){ loadXLSXCb(r); }); var k2=aaiiParseXlsBuf(bb2,add); n+=k2; aaLog("wayback-xls",k2>0,"rows="+k2); } } }catch(e){}
+  if(n>0) return n;
   try{ var t=await sentFetch("https://www.aaii.com/files/surveys/sentiment.csv",8000); var k=aaiiParseCsvText(t,add); n+=k; aaLog("aaii-csv",k>0,"rows="+k); }catch(e){}
   if(n>0) return n;
   try{ var h=await sentFetch("https://www.aaii.com/sentimentsurvey",8000); var j=aaiiParseSurveyHtml(h,add); n+=j; aaLog("aaii-html",j>0,"pts="+j); }catch(e){}
@@ -4091,8 +4094,10 @@ async function loadAAII2(){
      取得は非同期（描画をブロックしない）。届いたら SENTD を更新して再描画。 */
   try{ aaiiPrimeLatest(add).then(function(n){ if(n>0){ try{
         var p2=Object.keys(out).sort().map(function(k){ return out[k]; });
-        if(p2.length>1){ var cur=SENTD.aaii2&&SENTD.aaii2.pts;
-          if(!cur||p2.length>=cur.length){ SENTD.aaii2={pts:p2,view:{i0:0,i1:0,auto:true,tf:"d"},err:0}; } else { SENTD.aaii2.pts=p2; SENTD.aaii2.err=0; }
+        if(p2.length>1){ var cur=(SENTD.aaii2&&SENTD.aaii2.pts)||[], mm={};
+          cur.concat(p2).forEach(function(r){ if(r&&r[0]) mm[r[0]]=r; });
+          var uni=Object.keys(mm).sort().map(function(k){ return mm[k]; });
+          if(uni.length>1){ SENTD.aaii2={pts:uni,view:(SENTD.aaii2&&SENTD.aaii2.view)||{i0:0,i1:0,auto:true,tf:"d"},err:0}; }
           window.__AAII_PRIMED=n; try{ sentRender(); }catch(e1){} try{ drawIC("AAII2"); }catch(e2){} try{ drawIC("BBAR"); }catch(e3){} }
       }catch(e){} } }); }catch(e){}
 /* 3) GitHubミラー（psinopoli/AAII-Sentiment・過去3年分の補完用） */
@@ -4230,7 +4235,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-27-1137: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-27-2245: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4389,9 +4394,14 @@ function drawIC(key){
     var pd=((mx-mn)*0.10)||1; mn-=pd; mx+=pd;
   }
   vw.lymn=mn; vw.lymx=mx;   /* 最後に描いた縦軸範囲（スケールバー操作の基準） */
-  function X(i){ return L+pw*(vis.length<2?0.5:i/(vis.length-1)); }
+  /* ★全カード共通の日付軸: X座標は窓の日付から直接計算（VIXと完全一致） */
+  var _w0d=(SENTWIN.d0||(vis[0]&&vis[0][0])), _w1d=(SENTWIN.d1||(vis[vis.length-1]&&vis[vis.length-1][0]));
+  var _t0w=new Date(_w0d+"T00:00:00Z").getTime(), _t1w=new Date(_w1d+"T00:00:00Z").getTime();
+  var _spanD=Math.max(1,(_t1w-_t0w)/864e5);
+  function XD(ds){ var t=new Date(ds+"T00:00:00Z").getTime(); return L+pw*((t-_t0w)/Math.max(1,_t1w-_t0w)); }
+  function X(i){ var p=vis[i]; if(p&&p[0]&&_t1w>_t0w) return XD(p[0]); return L+pw*(vis.length<2?0.5:i/(vis.length-1)); }
   function Y(v){ return T+ph*(1-(v-mn)/(mx-mn)); }
-  var bw=Math.max(2,Math.min(14,pw/Math.max(vis.length,1)*0.62));
+  var bw=Math.max(2,Math.min(14,pw/_spanD*0.62));
   var g="", NT2=c2? 11:5, grid="";
   for(var t=0;t<NT2;t++){ var vv=mn+(mx-mn)*t/(NT2-1), yy=Y(vv);
     grid+="<line x1=\""+L+"\" x2=\""+(W-R)+"\" y1=\""+yy.toFixed(1)+"\" y2=\""+yy.toFixed(1)+"\" stroke=\""+(c2?"#e9eef5":"#232a32")+"\" stroke-width=\""+(c2?"1.2":"1")+"\" stroke-opacity=\""+(c2?"0.85":"1")+"\"/>";
@@ -4411,36 +4421,32 @@ function drawIC(key){
     var vis2=Object.keys(mapv).sort().map(function(k){ return mapv[k]; });
     if(vis2.length>1) vis=vis2;
   }
+  /* ★横軸は全カード共通（VIX日付軸）: ラベル位置も日付から算出＝カード間で完全一致 */
   var cands=[], mseen={};
-  var tbase=vis;   /* ★目盛の基準=VIXマスター日（週次系列でもラベルが窓外へ出ない） */
-  if(vixRef&&vixRef.length>1&&vis.length>1){ var _a0=vis[0][0], _b0=vis[vis.length-1][0]; var _vb=vixRef.filter(function(v){ return v[0]>=_a0&&v[0]<=_b0; }); if(_vb.length>1) tbase=_vb.map(function(v){ return [v[0],0]; }); }
-  var _idxOf=function(dt){ var lo=0,hi=vis.length-1; while(lo<hi){ var mid=(lo+hi)>>1; if(vis[mid][0]<dt) lo=mid+1; else hi=mid; } return lo; };
-  var _seen_i={};
-  tbase.forEach(function(p){ if(!p[0]) return; var mk=p[0].slice(0,7), dd=+p[0].slice(8,10); if(!mseen[mk]) mseen[mk]={}; var gi=_idxOf(p[0]);
-    if(dd<=15&&!mseen[mk].a){ mseen[mk].a=1; if(!_seen_i[gi]){_seen_i[gi]=1; cands.push({i:gi,p:0});} }
-    if(dd>=16&&!mseen[mk].b){ mseen[mk].b=1; if(!_seen_i[gi]){_seen_i[gi]=1; cands.push({i:gi,p:1});} } });
-  vis.forEach(function(p,i){ if(!p[0]) return;
-    var mk=p[0].slice(0,7), dd=+p[0].slice(8,10);
+  var tbase=(vixRef&&vixRef.length>1)? vixRef.map(function(p){ return p[0]; }) : vis.map(function(p){ return p[0]; });
+  var inday=tbase.filter(function(d0x){ return d0x>=_w0d&&d0x<=_w1d; });
+  if(!inday.length) inday=vis.map(function(p){ return p[0]; }).filter(function(d0x){ return d0x>=_w0d&&d0x<=_w1d; });
+  inday.forEach(function(dt){ var mk=dt.slice(0,7), dd=+dt.slice(8,10);
     if(!mseen[mk]) mseen[mk]={};
-    if(dd<=15&&!mseen[mk].a){ cands.push({i:i,p:0}); mseen[mk].a=1; }   /* ★月前半の最初のデータ日＝「1日」扱い（1日が土日なら翌開場日を立て、土日で月ごと欠落するのを根絶） */
-    if(dd>=16&&!mseen[mk].b){ cands.push({i:i,p:1}); mseen[mk].b=1; } }); /* ★月後半の最初のデータ日＝「15日」扱い */
-  if(vis.length>0) cands.push({i:vis.length-1,p:2});          /* 本日（優先度最低） */
-  var todayIdx=vis.length-1;
-  var N=Math.max(2,Math.floor((W-R-L)/52)), step=Math.max(1,Math.ceil(cands.length/N)), ticks=[];
-  for(var k=0;k<cands.length;k+=step) ticks.push(cands[k].i);   /* ★等ステップ採択（6か月表示=全1日・15日／3年表示=3か月毎の1日）— 月欠落・不均等間隔を構造的に根絶 */
-  if(vis.length>0) ticks.push(todayIdx);   /* ★本日は常に表示（優先度最低・直前tickと40px未満なら省略） */
-  ticks.sort(function(a,b){ return a-b; });
-  var accX=[];
-  ticks=ticks.filter(function(gi){ var xx=X(gi);
-    if(accX.length&&xx-accX[accX.length-1]<40) return false;
-    accX.push(xx); return true; });
-  ticks.sort(function(a,b){ return a-b; });
-  ticks.forEach(function(gi){
-    var xx=X(gi), gp=(vis[gi]||[""])[0];
-    if(!gp) return;
-    g+="<line x1=\""+xx.toFixed(1)+"\" x2=\""+xx.toFixed(1)+"\" y1=\""+(T+ph).toFixed(1)+"\" y2=\""+(T+ph+5).toFixed(1)+"\" stroke=\"#9aa4b2\" stroke-opacity=\"0.7\" stroke-width=\"1\"/>";   /* ★Tick目盛線 */
-    var xx2=Math.max(L+28,Math.min(W-R-28,xx));   /* 端のラベルを軸内側にクランプ（見切れ防止） */
-    g+="<text x=\""+xx2.toFixed(1)+"\" y=\""+(H-24)+"\" text-anchor=\"middle\" fill=\"#9aa4b2\" font-size=\"11\">"+esc0(gp.slice(2).replace(/-/g,"/"))+"</text>"; });   /* ★YY/MM/DD 表示 */
+    if(dd<=15&&!mseen[mk].a){ mseen[mk].a=1; cands.push(dt); }
+    if(dd>=16&&!mseen[mk].b){ mseen[mk].b=1; cands.push(dt); } });
+  var sel=[], N2=Math.max(2,Math.floor((W-R-L)/52)), stp=Math.max(1,Math.ceil(cands.length/N2));
+  for(var k2=0;k2<cands.length;k2+=stp) sel.push(cands[k2]);
+  var _ends=[]; if(inday.length){ _ends=[inday[0],inday[inday.length-1]]; }
+  _ends.forEach(function(e){ if(sel.indexOf(e)<0) sel.push(e); });
+  var _used=[], ticks=[];
+  function _take(dt){ var xx=XD(dt); if(!isFinite(xx)||xx<L-1||xx>W-R+1) return;
+    for(var q=0;q<_used.length;q++){ if(Math.abs(_used[q]-xx)<62) return; }
+    _used.push(xx); ticks.push({d:dt,x:xx}); }
+  _ends.forEach(_take);
+  sel.sort(); sel.forEach(_take);
+  ticks.sort(function(a,b){ return a.x-b.x; });
+  ticks.forEach(function(tk,ti){
+    var xx=tk.x, isF=(ti===0), isL=(ti===ticks.length-1), anch="middle", tx=xx;
+    if(isF){ anch="start"; tx=Math.max(L,xx); }
+    if(isL){ anch="end"; tx=Math.min(W-R,xx); }
+    g+="<line x1=\""+xx.toFixed(1)+"\" x2=\""+xx.toFixed(1)+"\" y1=\""+(T+ph).toFixed(1)+"\" y2=\""+(T+ph+5).toFixed(1)+"\" stroke=\"#9aa4b2\" stroke-opacity=\"0.7\" stroke-width=\"1\"/>";
+    g+="<text x=\""+tx.toFixed(1)+"\" y=\""+(H-24)+"\" text-anchor=\""+anch+"\" fill=\"#9aa4b2\" font-size=\"11\">"+esc0(tk.d.slice(2).replace(/-/g,"/"))+"</text>"; });
   if(c2){
     var bw2=Math.max(2,Math.min(16,pw/Math.max(vis.length,1)*0.7));
     vis.forEach(function(p,i){
@@ -4628,7 +4634,7 @@ function sentRender(){
     cnBody="<div class=\"cwrap\"><div id=\"ch_CNNF\"></div>"
         +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"CNNF\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"CNNF\" data-a=\"zr\">＋</button></div></div>";
   } else cnBody="<div class=\"wait\">"+(cn.err||(cn.pts&&!cn.pts.length)?"取得できません（Bot対策のためプロキシ経由） <span class=\"sb\" data-retry=\"cnn\">再試行</span>":"取得中…")+"</div>";
-  sec_CNN=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):(cn.err?"取得できません":"取得中…")),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・3年分（表示は直近6か月）",cnBody);
+  sec_CNN=sect("CNN Fear & Greed",(typeof cn.last==="number"?fmtV(cn.last):((SENTD.daily.CNNF&&SENTD.daily.CNNF.pts&&SENTD.daily.CNNF.pts.length>1)?fmtV(SENTD.daily.CNNF.pts[SENTD.daily.CNNF.pts.length-1][4]):(cn.err?"取得できません":"取得中…"))),(cn.rating||"")+(cn.asof?"／"+cn.asof:"")+"／日次・3年分（表示は直近6か月）",cnBody);
   var bb=SENTD.bbar||{}, bd=SENTD.daily.BBAR;
   var bbBody;
   if(bd&&bd.pts&&bd.pts.length>1){
@@ -4643,7 +4649,8 @@ function sentRender(){
         +"<div class=\"cwrap\"><div id=\"ch_AAII2\"></div>"
         +"<div class=\"ic-ctl\"><button type=\"button\" data-tk=\"AAII2\" data-a=\"zl\">−</button><button type=\"button\" data-tk=\"AAII2\" data-a=\"zr\">＋</button></div></div>";
   } else aa2Body="<div class=\"wait\">"+(aa2&&aa2.err?"取得できません <span class=\"sb\" data-retry=\"aaii\">再試行</span>":"取得中…（過去3年分）")+"</div>";
-  sec_AAII2=sect("AAIIセンチメント②","100%積み上げ（Bullish/Neutral/Bearish）・取得範囲 "+(aa2&&aa2.pts.length>1? aa2.pts[0][0]+"〜"+aa2.pts[aa2.pts.length-1][0]:"-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
+  var _a2l=(aa2&&aa2.pts&&aa2.pts.length>1)? aa2.pts[aa2.pts.length-1][0] : "";
+  sec_AAII2=sect("AAIIセンチメント②",(_a2l? "Week Ending "+(+_a2l.slice(5,7))+"/"+(+_a2l.slice(8,10))+"/"+_a2l.slice(0,4) : "-"),aa2&&aa2.pts.length? aa2.pts[aa2.pts.length-1][0]:"",aa2Body);
   sec_BBAR=sect("ブルベア指数（AAII BULLS vs BEARS）",(bb.bulls!=null? "BULLS "+(+bb.bulls).toFixed(1)+"% / BEARS "+(+bb.bears).toFixed(1)+"%":(bb.err?"取得できません":"取得中…")),(bb.asof||"")+"／AAIIセンチメント調査・週次（表示は直近6か月）",bbBody);
   ["VIX","PCC","US10Y"].forEach(function(key){
     var nm=(key==="VIX")?"VIX（恐怖指数）":(key==="PCC"?"プット/コールレシオ":"米国10年債利回り");

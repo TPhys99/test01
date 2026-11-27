@@ -208,7 +208,8 @@ footer b{color:var(--tx)}
 .subh:first-child{margin-top:2px}
 </style>
 </head>
-<body>
+<body class="boot">
+<style id="bootmask">body.boot #wrap,body.boot #pnav,body.boot #tabs,body.boot #jump{visibility:hidden!important}body.boot #sentview{visibility:visible}</style>
 <header>
   <h1>各国名目・実質金利・指数・債券・コモディティ・暗号通貨まとめ</h1>
   <p class="sub" id="sub"></p>
@@ -253,7 +254,7 @@ footer b{color:var(--tx)}
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-27-2339";
+const BUILD="v2026-11-28-0007";
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
 /* items: [表示名, ティッカー, 強調(任意 "hl"), 分配金込み(任意 "dv")] */
@@ -3763,7 +3764,7 @@ var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}\n@media(max-width:900px){\n#sentbody{grid-template-columns:1fr}\n#sentview{max-width:100vw;overflow-x:hidden}\n#sentview .sc{max-width:100%;min-width:0;overflow:hidden}\n#sentview svg{max-width:100%;height:auto}\n.acard{max-width:100%;overflow-x:auto}\n.arow{max-width:100%}\n.wrap{grid-template-columns:1fr!important}\nhtml,body{max-width:100vw;overflow-x:hidden}\n}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 st.textContent+="@media(min-width:901px){#sentbody .sc{height:430px}#sentbody .sc .cwrap{flex:1 1 auto;min-height:0}#sentbody .sc .cwrap svg{height:100%!important;width:100%}}"+"@media(max-width:900px){#sentbody .sc{height:auto}}";
 document.head.appendChild(st);
-/* v2026-11-27-2339: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-28-0007: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4252,7 +4253,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-27-2339: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-28-0007: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4492,7 +4493,7 @@ function drawIC(key){
       pts2.forEach(function(q){ g+="<path d=\"M "+(q[0]-3).toFixed(1)+" "+(q[1]-3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" M "+(q[0]-3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]-3).toFixed(1)+"\" stroke=\"#4aa3ff\" stroke-width=\"1.4\" fill=\"none\"/>"; });   /* ★×印マーカー */
     } else if(key==="BBAR"&&d.bears){   /* ★新定義: BULLS(赤茶)＋BEARS(暗緑) 2本ライン＋×印 */
       var bl=vis.map(function(p,i){ return [X(i),Y(p[4])]; }).filter(function(q){ return isFinite(q[1]); });
-      var _bmap={}; (d.pts||[]).forEach(function(q){ if(q&&q[0]) _bmap[q[0]]=+q[3]; }); if(d.bears) d.bears.forEach(function(q){ if(q&&q[0]&&!(_bmap[q[0]]>=0)) _bmap[q[0]]=+q[4]; });   /* ★BULLS と同一系列から引いて点数を必ず一致させる */   /* ★窓内の日付で引く（旧: 全系列indexでX()を割り座標破綻） */
+      var _bmap={}; (d.bears||[]).forEach(function(q){ if(q&&q[0]) _bmap[q[0]]=+q[4]; });   /* ★BEARS値は d.bears から（pts は bulls 系のため流用不可） */   /* ★BULLS と同一系列から引いて点数を必ず一致させる */   /* ★窓内の日付で引く（旧: 全系列indexでX()を割り座標破綻） */
       var bl2=vis.map(function(p,i){ var _bv=_bmap[p[0]]; if(!isFinite(_bv)) return null; return [X(i),Y(_bv)]; }).filter(function(q){ return q&&isFinite(q[1]); });
       if(bl.length>1) g+="<polyline points=\""+bl.map(function(q){ return q[0].toFixed(1)+","+q[1].toFixed(1); }).join(" ")+"\" fill=\"none\" stroke=\"#a0522d\" stroke-width=\"1.8\"/>";
       if(bl2.length>1) g+="<polyline points=\""+bl2.map(function(q){ return q[0].toFixed(1)+","+q[1].toFixed(1); }).join(" ")+"\" fill=\"none\" stroke=\"#1f6e43\" stroke-width=\"1.8\"/>";
@@ -4760,7 +4761,7 @@ function sentToggle(){
       +"股ブルベア指数は UPRO（S&P500ブル3倍）÷SPXS（S&P500ベア3倍）の比＝代理指標。股AAIIはこの端末での蓄積履歴。股出典： CBOE／CNN／AAII／Yahoo Finance（公開データ）。</div>"
       +"<span class=\"sb\" id=\"sentback\">← 戻る</span><div id=\"sentbody\"><div class=\"wait\">取得中…</div></div>";
     var bk=document.getElementById("sentback"); bk.addEventListener("click",sentToggle);
-    sentEnsure(); sentRender();
+    sentEnsure(); sentRender(); try{ setTimeout(function(){ document.body.classList.remove('boot'); },0); }catch(e){}
     setTimeout(sentRender,3000); setTimeout(sentRender,10000);
   }
 }try{ window.sentToggle=sentToggle; window.unifySentHeights=unifySentHeights; }catch(eG){}
@@ -4779,7 +4780,7 @@ try{ var __sk=document.createElement("style"); __sk.textContent="@keyframes skp{
 }
 document.addEventListener("click",function(){ setTimeout(sentSyncUI,0); setTimeout(sentSyncUI,80); setTimeout(sentSyncUI,300); },true);
 try{ window.__SENTDBG={ win:function(){ return {d0:SENTWIN.d0,d1:SENTWIN.d1}; }, zoom:function(f){ sentZoomWin(f); }, open:function(){ return !!window.__SENT_OPEN; } }; }catch(eD){}   /* ★グローバル露出（初期オープンから参照可能に） */
-try{ if(!/[?&#]sent=0/.test(location.search+location.hash)) setTimeout(function(){ try{ var sv=document.getElementById("sentview"); if(sv&&sv.style.display!=="block") sentToggle(); }catch(e){} },700); }catch(e){}   /* ★初期ページを市場センチメントに（定義後・700ms） */
+try{ if(!/[?&#]sent=0/.test(location.search+location.hash)) setTimeout(function(){ try{ var sv=document.getElementById("sentview"); if(sv&&sv.style.display!=="block") sentToggle(); }catch(e){} try{ document.body.classList.remove("boot"); }catch(e){} },0); }catch(e){}   /* ★初期ページを市場センチメントに（定義後・700ms） */
 document.addEventListener("click",function(e){ var t=e.target&&e.target.closest?e.target.closest("#sentbtn"):null; if(t){ e.preventDefault(); sentToggle(); } });
 try{ if(/[?&#]sent=1/.test(location.search+location.hash)) setTimeout(function(){ try{ sentToggle(); }catch(e){} },400); }catch(e){}
 setTimeout(function(){ try{ sentEnsure(); }catch(e){} },50);   /* 先行取得: ページ読み込み直後から準備し、タブを開いてから2秒以内に表示 */

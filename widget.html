@@ -243,7 +243,7 @@ body{
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-27-0420";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
+const BUILD="v2026-11-27-1130";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
@@ -3876,7 +3876,7 @@ setInterval(function(){ if(document.hidden) return; try{ wRender(); }catch(e){} 
 var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}\n@media(max-width:900px){\n#sentbody{grid-template-columns:1fr}\n#sentview{max-width:100vw;overflow-x:hidden}\n#sentview .sc{max-width:100%;min-width:0;overflow:hidden}\n#sentview svg{max-width:100%;height:auto}\n.acard{max-width:100%;overflow-x:auto}\n.arow{max-width:100%}\n.wrap{grid-template-columns:1fr!important}\nhtml,body{max-width:100vw;overflow-x:hidden}\n}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 document.head.appendChild(st);
-/* v2026-11-27-0420: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-27-1130: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4344,7 +4344,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-27-0420: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-27-1130: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4458,6 +4458,7 @@ function drawIC(key){
   if(!c2&&raw[0]&&raw[0].length===2) raw=mkCC(raw);   /* 2列系列は自動でローソク化 */
   var pts=(!c2&&raw[0]&&raw[0].length===5)? aggPts(raw,tf) : raw;
   sentInitWin();
+  if(SENTWIN.d0&&!window.__SENT_USER){ var _sp=(new Date(SENTWIN.d1)-new Date(SENTWIN.d0))/864e5; if(_sp>400){ SENTWIN.d0=new Date(new Date(SENTWIN.d1+"T00:00:00Z").getTime()-183*864e5).toISOString().slice(0,10); } }   /* ★非操作時の窓は6か月に固定（モバイルの誤スクロール拡張を根絶） */
   /* ★根本修正: 空ローソク（NaN）パディングは描画用コピー draw にのみ施し、d.pts は常にクリーン実データ。
      過去Bug: d.ptsへNaNスロットを保存→aggPts/syncViews/ズームが汚染→CNN操作後に空表示（v0206〜v0221の再発源） */
   var draw=pts.filter(function(p){ return p&&p.length>=2&&(isFinite(+p[1])||isFinite(+p[4])); });
@@ -4572,7 +4573,8 @@ function drawIC(key){
       pts2.forEach(function(q){ g+="<path d=\"M "+(q[0]-3).toFixed(1)+" "+(q[1]-3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" M "+(q[0]-3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]-3).toFixed(1)+"\" stroke=\"#4aa3ff\" stroke-width=\"1.4\" fill=\"none\"/>"; });   /* ★×印マーカー */
     } else if(key==="BBAR"&&d.bears){   /* ★新定義: BULLS(赤茶)＋BEARS(暗緑) 2本ライン＋×印 */
       var bl=vis.map(function(p,i){ return [X(i),Y(p[4])]; }).filter(function(q){ return isFinite(q[1]); });
-      var bl2=d.bears.map(function(p,i){ return [X(i),Y(p[4])]; }).filter(function(q){ return isFinite(q[1]); });
+      var _bmap={}; d.bears.forEach(function(p){ _bmap[p[0]]=+p[4]; });   /* ★窓内の日付で引く（旧: 全系列indexでX()を割り座標破綻） */
+      var bl2=vis.map(function(p,i){ var _bv=_bmap[p[0]]; if(!isFinite(_bv)) return null; return [X(i),Y(_bv)]; }).filter(function(q){ return q&&isFinite(q[1]); });
       if(bl.length>1) g+="<polyline points=\""+bl.map(function(q){ return q[0].toFixed(1)+","+q[1].toFixed(1); }).join(" ")+"\" fill=\"none\" stroke=\"#a0522d\" stroke-width=\"1.8\"/>";
       if(bl2.length>1) g+="<polyline points=\""+bl2.map(function(q){ return q[0].toFixed(1)+","+q[1].toFixed(1); }).join(" ")+"\" fill=\"none\" stroke=\"#1f6e43\" stroke-width=\"1.8\"/>";
       bl.forEach(function(q){ g+="<path d=\"M "+(q[0]-3).toFixed(1)+" "+(q[1]-3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" M "+(q[0]-3).toFixed(1)+" "+(q[1]+3).toFixed(1)+" L "+(q[0]+3).toFixed(1)+" "+(q[1]-3).toFixed(1)+"\" stroke=\"#a0522d\" stroke-width=\"1.4\" fill=\"none\"/>"; });

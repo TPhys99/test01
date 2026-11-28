@@ -5003,5 +5003,17 @@ window.addEventListener("hashchange",function(){ var el=document.getElementById(
 })();
 
 </script>
+<script>
+/* defskeep: 定義タブ選択中は他のタブの .on を必ず外す（nav再構築後も単一ハイライトを保証） */
+(function(){ var _w=window.wTabs,_r=window.renderNav;
+  function sel(){ return !!window.__DEFSEL || !!(document.querySelector('#tabs .defsbtn.on,#deftab.on')); }
+  function fix(){ if(!sel()) return; window.__DEFSEL=1;
+    document.querySelectorAll('#pnav a.on,#tabs button.on').forEach(function(x){ if(!(x.classList.contains('defsbtn')||x.id==='deftab')) x.classList.remove('on'); });
+    var db=document.querySelector('#tabs .defsbtn')||document.getElementById('deftab'); if(db) db.classList.add('on'); }
+  if(typeof _w==='function') window.wTabs=function(){ var s=sel(); var r=_w.apply(this,arguments); if(s) fix(); return r; };
+  if(typeof _r==='function') window.renderNav=function(){ var s=sel(); var r=_r.apply(this,arguments); if(s) fix(); return r; };
+  window.__DEFSFIX=fix;
+})();
+</script>
 </body>
 </html>

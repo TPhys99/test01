@@ -2795,7 +2795,7 @@ function renderNav(){
     document.getElementById("pnav").innerHTML="<span class=\"cap\">ページ</span>"+_order.map(function(_i){ const i=_i; const p=PERIODS[_i];
     const lbl=esc(p.label)+(p.partial? "<sup>月中</sup>":"");
     if(p.off) return "<a class=\"off\" aria-disabled=\"true\">"+lbl+"</a>";
-    return "<a href=\"#"+p.id+"\" data-i=\""+i+"\""+(p.d1?" data-d1=\"1\"":"")+" class=\""+(i===CUR?"on":"")+"\" aria-current=\""+(i===CUR?"page":"false")+"\">"+lbl+"</a>";
+    return "<a href=\"#"+p.id+"\" data-i=\""+i+"\""+(p.d1?" data-d1=\"1\"":"")+" class=\""+((i===CUR&&!window.__DEFSEL)?"on":"")+"\" aria-current=\""+(i===CUR?"page":"false")+"\">"+lbl+"</a>";
   }).join("");
   const act=document.querySelector("#pnav a.on");
   if(act&&act.scrollIntoView) try{ act.scrollIntoView({inline:"center",block:"nearest"}); }catch(e){}

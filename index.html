@@ -2884,6 +2884,13 @@ document.getElementById("pnav").addEventListener("click",function(e){
   const a0=e.target.closest("a[data-i]"); if(!a0) return;
   e.preventDefault(); show(+a.dataset.i,true);
 });
+document.addEventListener("click",function(e){   /* ★定義タブ: 文書レベル委譲（#pnav要素が再生成されても確実に拾う） */
+  var _dt=e.target&&e.target.closest?e.target.closest("#deftab,.defsbtn"):null; if(!_dt) return;
+  window.__DEFSEL=1;
+  try{ var _s=document.getElementById("sentview"); if(_s&&_s.style.display==="block"){ _s.style.display="none"; var _w=document.getElementById("wrap"); if(_w) _w.style.display=""; window.__SENT_OPEN=0; var _j=document.getElementById("jump"); if(_j) _j.style.display=""; } }catch(e1){}
+  document.querySelectorAll("#pnav a.on,#tabs button.on").forEach(function(x){ x.classList.remove("on"); });
+  _dt.classList.add("on");
+});
 window.addEventListener("hashchange",function(){
   if(/#defs$/.test(location.hash)){ window.__DEFSEL=1; var _dt=document.getElementById("deftab"); if(_dt){ document.querySelectorAll("#pnav a.on,#tabs button.on").forEach(function(x){ x.classList.remove("on"); }); _dt.classList.add("on"); } }
   var sv=document.getElementById("sentview");

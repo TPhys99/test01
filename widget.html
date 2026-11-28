@@ -244,7 +244,7 @@ body{
 
 <script>
 /* ビルド番号：納品物の版を画面でも確認できるようにする */
-const BUILD="v2026-11-28-1810";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
+const BUILD="v2026-11-28-1828";   /* 日本時間(JST)基準。旧buildの"0446"はUTC表記だった */
 try{ document.addEventListener("DOMContentLoaded",function(){ var e=document.getElementById("bld"); if(e) e.textContent=BUILD; }); }catch(e){}
 
 /* ================= 構成（銘柄リストのみ。数値は埋め込まず、開いた時点で取得） ================= */
@@ -3885,7 +3885,7 @@ var st=document.createElement("style");
 st.textContent="#sentview{display:none;background:#0b0e12;color:#e9eef5;padding:8px 10px 24px}#sentview h2{font-size:16px;margin:0 0 2px}#sentview .sub{font-size:12px;color:#c3ccd8;margin:0 0 8px}#sentview .sb{cursor:pointer;border:1px solid #3a434e;border-radius:12px;padding:3px 12px;font-size:11.5px;color:#9aa4b2;display:inline-block}#sentview .sc{background:#12161c;border:1px solid #232a32;border-radius:8px;padding:8px 10px;margin:0}#sentview .sc h3{margin:0 0 1px;font-size:13px;color:#e9eef5}#sentview .lv{font-size:18px;font-weight:700}#sentview .dt{font-size:10px;color:#9aa4b2;margin-left:6px}#sentview .wait{color:#9aa4b2;font-size:12px;padding:20px 0;text-align:center}#sentbody{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row;gap:12px;align-items:start}\n@media(max-width:900px){\n#sentbody{grid-template-columns:1fr}\n#sentview{max-width:100vw;overflow-x:hidden}\n#sentview .sc{max-width:100%;min-width:0;overflow:hidden}\n#sentview svg{max-width:100%;height:auto}\n.acard{max-width:100%;overflow-x:auto}\n.arow{max-width:100%}\n.wrap{grid-template-columns:1fr!important}\nhtml,body{max-width:100vw;overflow-x:hidden}\n}#sentview svg{width:100%;height:auto;display:block}#sentview .tf-ctl{display:flex;gap:4px;margin:0 0 6px}#sentview .tf-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:2px 9px;font-size:11px;cursor:pointer}#sentview .tf-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}#sentview .cwrap{position:relative}#sentview .ic-ctl{position:absolute;right:12px;bottom:40px;display:flex;gap:4px}#sentview .ic-ctl button{background:#12161c;border:1px solid #3a434e;color:#9aa4b2;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer}#sentview .ic-ctl button.on{background:#0f3d6d;color:#ffd97a;border-color:#6cb6ff;font-weight:bold}.acard{background:#fff;border-radius:8px;padding:10px 12px;color:#222;font-size:11px}.aleg{display:flex;gap:12px;margin:0 0 6px;font-size:11px;color:#e9eef5}.aleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:middle}.aleg1{color:#333}.aleg1 span{color:#333}.arow{display:flex;align-items:center;margin:4px 0}.adate{width:96px;color:#555;font-size:10px}.abar{flex:1;display:flex;height:20px;border-radius:3px;overflow:hidden}.abar span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;min-width:0;overflow:hidden}.abull{background:#2e9e5b}.aneu{background:#9e9e9e}.abear{background:#e05252}.ahd{font-size:10px;color:#888;letter-spacing:.05em;margin:10px 0 2px}.abtn{display:inline-block;background:#06c;color:#fff;border-radius:6px;padding:6px 14px;font-size:11px;text-decoration:none;margin-top:10px}";
 st.textContent+="@media(min-width:901px){#sentbody .sc{height:430px}#sentbody .sc .cwrap{flex:1 1 auto;min-height:0}#sentbody .sc .cwrap svg{height:100%!important;width:100%}}"+"@media(max-width:900px){#sentbody .sc{height:auto}}";
 document.head.appendChild(st);
-/* v2026-11-28-1810: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
+/* v2026-11-28-1828: タブ本体はrenderNav（index）／wTabs（widget）が生成。クリックは文書レベルの委譲で処理 */
 var b=document.getElementById("sentbtn");   /* 宣言復元: sentToggle内の .on 付与で使用 */
 var v=document.createElement("div"); v.id="sentview"; document.body.appendChild(v);
 (function(){ var w=document.getElementById("wrap"); if(w&&w.parentNode) w.parentNode.insertBefore(v,w); })();   /* タブバーを残して本文と入れ替える */
@@ -4375,7 +4375,7 @@ function sentEnsure(){
   loadDaily().then(sentRender).catch(sentRender);
   loadAAII2().then(sentRender).catch(sentRender);
 }
-/* ---- v2026-11-28-1810: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
+/* ---- v2026-11-28-1828: 日次2年データ＋インタラクティブチャート（ドラッグ移動・ホイール拡大縮小・Auto縦軸フィット） ---- */
 async function loadDaily(){
   var CY=(typeof YR!=="undefined")?YR:(new Date()).getFullYear();
   function mk(key){ var o=SENTD.daily[key]||(SENTD.daily[key]={pts:[],err:0}); if(!o.view) o.view={i0:0,i1:0,auto:true}; return o; }
@@ -4542,8 +4542,8 @@ function drawDual(){
   var yBand=YR(-20), yBot=YR(rmn);
   g+="<rect x=\""+L+"\" y=\""+yBand.toFixed(1)+"\" width=\""+pw+"\" height=\""+Math.max(1,yBot-yBand).toFixed(1)+"\" fill=\"rgba(255,235,0,0.2)\"/>";
   g+="<line x1=\""+L+"\" x2=\""+(W-R)+"\" y1=\""+yBand.toFixed(1)+"\" y2=\""+yBand.toFixed(1)+"\" stroke=\"#ffeb3b\" stroke-opacity=\"0.65\" stroke-dasharray=\"4 3\"/>";
-  var _blY=(yBand-5).toFixed(1), _blX=W-R-3;   /* ★帯の直上・右端（プロット内右端・anchor=end） */
-  g+="<text x=\""+_blX+"\" y=\""+_blY+"\" text-anchor=\"end\" fill=\"#ffeb3b\" font-size=\"9\">−20%以下</text>";
+  var _blY=(yBand-6).toFixed(1), _blX=W-R-3;   /* ★帯の直上・右端／CNNグラフ「Extreme Fear」と同一の13px・太字 */
+  g+="<text x=\""+_blX+"\" y=\""+_blY+"\" text-anchor=\"end\" fill=\"#ffeb3b\" font-size=\"13\" font-weight=\"700\">−20%以下</text>";
   /* グリッド + 左右軸ラベル: 右軸は「必ず0を含む」キリの良い目盛り */
   var rtk=(function(lo,hi){
     var span=Math.max(1e-6,hi-lo), raw=span/5, mag=Math.pow(10,Math.floor(Math.log10(raw))), nm=raw/mag;
@@ -4597,7 +4597,7 @@ function drawDual(){
   g+="<text x=\""+(L+6)+"\" y=\""+(T+12)+"\" fill=\"#e9eef5\" font-size=\"11\" font-weight=\"700\">S&amp;P500</text>";   /* ★左軸=S&P500 */
   g+="<text x=\""+(W-R-6)+"\" y=\""+(T+12)+"\" text-anchor=\"end\" fill=\"#2e9e5b\" font-size=\"11\" font-weight=\"700\">ブルベア比率</text>";   /* ★右軸=ブルベア比率 */
   host.innerHTML="<svg viewBox=\"0 0 "+W+" "+H+"\" preserveAspectRatio=\"xMidYMid meet\" style=\"width:100%;height:100%;display:block\">"+g+"</svg>";
-  window.__DUAL={ratio:pts[pts.length-1][1], last:pts[pts.length-1][0], sp:spw.length?spw[spw.length-1][1]:null, n:pts.length, yBandY:+YR(-20).toFixed(1), yTop20:+YR(-20).toFixed(1), bandLabX:_blX, bandLabY:+_blY, colUp:"#2e9e5b", colDn:"#e05252", rticks:rtk, spOk:spOk, spN:spw.length, spSrc:(SENTD.sp&&SENTD.sp.src)||"", rmn:+rmn.toFixed(2), rmx:+rmx.toFixed(2)};
+  window.__DUAL={ratio:pts[pts.length-1][1], last:pts[pts.length-1][0], sp:spw.length?spw[spw.length-1][1]:null, n:pts.length, yBandY:+YR(-20).toFixed(1), yTop20:+YR(-20).toFixed(1), bandLabX:_blX, bandFont:13, bandLabY:+_blY, colUp:"#2e9e5b", colDn:"#e05252", rticks:rtk, spOk:spOk, spN:spw.length, spSrc:(SENTD.sp&&SENTD.sp.src)||"", rmn:+rmn.toFixed(2), rmx:+rmx.toFixed(2)};
 }
 
 function drawIC(key){

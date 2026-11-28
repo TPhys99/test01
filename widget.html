@@ -2753,6 +2753,7 @@ function report(afterLoad){
 function maxAsof(){ let a=""; ALL.forEach(function(tk){ if(CDATA[tk]&&CDATA[tk].asof>a) a=CDATA[tk].asof; }); return a; }
 function show(pi,fromUser){
   var __prev=CUR;
+  window.__DEFSEL=0;
 
 
   if(!PERIODS[pi]) return;   /* ★不正index保険 */
@@ -3833,7 +3834,7 @@ function wTabs(){
     const p=PERIODS[i];
     if(p.off) return '';
     const lbl=esc(p.d1? d1Name() : p.label)+(p.ly? '<sup>'+String(p.ym).slice(2)+'</sup>':'')+(p.partial? '<sup>月中</sup>':'');
-    return '<button data-i="'+i+'"'+(p.d1?' data-d1="1"':'')+((!WDEFS&&i===CUR)?' class="on"':'')+'>'+lbl+'</button>';
+    return '<button data-i="'+i+'"'+(p.d1?' data-d1="1"':'')+((!WDEFS&&!window.__DEFSEL&&i===CUR)?' class="on"':'')+'>'+lbl+'</button>';
   }).join('')
   +'<button data-i="-1" class="defsbtn'+(WDEFS?' on':'')+'">定義</button>';
   /* 固定タブの実高を測り、body余白と見出しのsticky位置に反映 */
